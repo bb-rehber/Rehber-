@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bağcılar Belediyesi | Dijital Rehber</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bagcilar-mavi: #005596; /* Bağcılar Bld. Kurumsal Mavisi */
+            --bagcilar-gri: #f8f9fa;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bagcilar-gri);
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Üst Header */
+        header {
+            background-color: white;
+            padding: 10px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--bagcilar-mavi);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            height: 60px; /* Buraya gerçek logo gelecek */
+            width: 60px;
+            background: #eee;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .titles h1 {
+            margin: 0;
+            font-size: 18px;
+            color: var(--bagcilar-mavi);
+            letter-spacing: 0.5px;
+        }
+
+        .titles p {
+            margin: 0;
+            font-size: 12px;
+            color: #666;
+            font-weight: bold;
+        }
+
+        /* Sağ Üst Arama */
+        .search-wrapper {
+            position: relative;
+        }
+
+        .search-input {
+            width: 350px;
+            padding: 12px 20px;
+            border: 2px solid #ddd;
+            border-radius: 30px;
+            font-size: 14px;
+            transition: all 0.3s;
+            outline: none;
+        }
+
+        .search-input:focus {
+            border-color: var(--bagcilar-mavi);
+            box-shadow: 0 0 10px rgba(0,85,150,0.2);
+        }
+
+        /* İçerik */
+        .content {
+            padding: 20px 30px;
+        }
+
+        .info-bar {
+            margin-bottom: 10px;
+            font-size: 13px;
+            color: #777;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Tablo Stili */
+        .table-container {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        thead {
+            background-color: var(--bagcilar-mavi);
+            color: white;
+        }
+
+        th {
+            padding: 15px;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 12px 15px;
+            font-size: 14px;
+            border-bottom: 1px solid #eee;
+            color: #333;
+        }
+
+        tr:hover {
+            background-color: #f1f5f9;
+        }
+
+        .dahili-cell {
+            font-weight: 700;
+            color: var(--bagcilar-mavi);
+            font-size: 16px;
+        }
+
+        .badge-konum {
+            background: #fff3cd;
+            color: #856404;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            header { flex-direction: column; text-align: center; gap: 10px; }
+            .search-input { width: 100%; }
+            .hide-mobile { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="brand">
+        <div class="logo">LOGO</div>
+        <div class="titles">
+            <h1>BAĞCILAR BELEDİYESİ</h1>
+            <p>BİLGİ İŞLEM MÜDÜRLÜĞÜ | KURUMSAL REHBER</p>
+        </div>
+    </div>
+    <div class="search-wrapper">
+        <input type="text" id="searchInput" class="search-input" placeholder="İsim, birim, unvan veya dahili no yazın...">
+    </div>
+</header>
+
+<div class="content">
+    <div class="info-bar">
+        <span>Görüntülenen Kayıt: <strong id="count">0</strong></span>
+        <span>Kadir Ege - 2026</span>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Dahili No</th>
+                    <th>Ad Soyad</th>
+                    <th>Birim</th>
+                    <th class="hide-mobile">Ünvan</th>
+                    <th class="hide-mobile">Konum</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // Gönderdiğin örnek listeden birkaç veri ekledim
+    const rehberData = [
+        {no: "106", ad: "RAKİME ÇİFTÇİ", birim: "TEFTİŞ KURULU MÜDÜRLÜĞÜ", unvan: "MÜFETTİŞ", konum: ""},
+        {no: "107", ad: "MAHSUN İYİSAN", birim: "ULAŞIM HİZMETLERİ MÜDÜRLÜĞÜ", unvan: "", konum: ""},
+        {no: "111", ad: "EYÜP YILDIZ", birim: "ÖZEL KALEM MÜDÜRLÜĞÜ", unvan: "DANIŞMAN", konum: ""},
+        {no: "122", ad: "GÜLDANE ÖLMEZ", birim: "BİLGİ İŞLEM MÜDÜRLÜĞÜ", unvan: "", konum: "ÇAĞRI MERKEZİ"},
+        {no: "135", ad: "KERİM MERT YILMAZ", birim: "İMAR VE ŞEHİRCİLİK MÜDÜRLÜĞÜ", unvan: "", konum: "PROJE RUHSAT ŞEFLİĞİ"},
+        {no: "152", ad: "NURİ ÇAKAL", birim: "KENTSEL TASARIM MÜDÜRLÜĞÜ", unvan: "MÜDÜR", konum: ""},
+        // ... 1200 kişi buraya JSON formatında eklenecek
+    ];
+
+    const tableBody = document.getElementById('tableBody');
+    const searchInput = document.getElementById('searchInput');
+    const countDisplay = document.getElementById('count');
+
+    function renderTable(filterText = "") {
+        const query = filterText.toLowerCase();
+        let html = "";
+        let counter = 0;
+
+        rehberData.forEach(item => {
+            if (
+                item.ad.toLowerCase().includes(query) || 
+                item.no.includes(query) || 
+                item.birim.toLowerCase().includes(query) ||
+                item.unvan.toLowerCase().includes(query) ||
+                item.konum.toLowerCase().includes(query)
+            ) {
+                html += `
+                    <tr>
+                        <td class="dahili-cell">${item.no}</td>
+                        <td><strong>${item.ad}</strong></td>
+                        <td>${item.birim}</td>
+                        <td class="hide-mobile">${item.unvan}</td>
+                        <td class="hide-mobile">${item.konum ? `<span class="badge-konum">${item.konum}</span>` : ''}</td>
+                    </tr>
+                `;
+                counter++;
+            }
+        });
+
+        tableBody.innerHTML = html;
+        countDisplay.innerText = counter;
+    }
+
+    // İlk açılış
+    renderTable();
+
+    // Arama tetikleyici
+    searchInput.addEventListener('input', (e) => renderTable(e.target.value));
+</script>
+
+</body>
+</html>
