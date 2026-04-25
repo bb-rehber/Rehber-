@@ -50,6 +50,7 @@
         </table>
     </div>
 </div>
+
 <script>
     const rehberData = [
         {no: "106", ad: "RAKİME ÇİFTÇİ", birim: "TEFTİŞ KURULU MÜDÜRLÜĞÜ", unvan: "MÜFETTİŞ", konum: ""},
@@ -57,11 +58,12 @@
         {no: "111", ad: "EYÜP YILDIZ", birim: "ÖZEL KALEM MÜDÜRLÜĞÜ", unvan: "DANIŞMAN", konum: ""},
         {no: "122", ad: "GÜLDANE ÖLMEZ", birim: "BİLGİ İŞLEM MÜDÜRLÜĞÜ", unvan: "OPERATÖR", konum: "ÇAĞRI MERKEZİ"},
         {no: "135", ad: "KERİM MERT YILMAZ", birim: "İMAR VE ŞEHİRCİLİK MÜDÜRLÜĞÜ", unvan: "MÜHENDİS", konum: "PROJE RUHSAT ŞEFLİĞİ"},
-        {no: "152", ad: "NURİ ÇAKAL", birim: "KENTSEL TASARIM MÜDÜRLÜĞÜ", unvan: "MUDUR", konum: ""}
+        {no: "152", ad: "NURİ ÇAKAL", birim: "KENTSEL TASARIM MÜDÜRLÜĞÜ", unvan: "MÜDÜR", konum: ""}
     ];
 
     let favorites = JSON.parse(localStorage.getItem('rehberFavs')) || [];
 
+    // EN ÖNEMLİ KISIM: TÜRKÇE KARAKTER "DÖVÜCÜ" FONKSİYON
     function temizle(metin) {
         if (!metin) return "";
         return metin.toString()
@@ -84,11 +86,14 @@
         const query = temizle(filterText);
         let html = "";
         let counter = 0;
+        
         const sortedData = [...rehberData].sort((a, b) => (favorites.includes(b.no) - favorites.includes(a.no)));
 
         sortedData.forEach(item => {
-            const aramaHavuzu = temizle(item.no + item.ad + item.birim + item.unvan + item.konum);
-            if (aramaHavuzu.includes(query)) {
+            // Her alanı tek tek temizleyip birleştiriyoruz ki kaçak olmasın
+            const birlesikMetin = temizle(item.no) + temizle(item.ad) + temizle(item.birim) + temizle(item.unvan) + temizle(item.konum);
+            
+            if (birlesikMetin.includes(query)) {
                 const isFav = favorites.includes(item.no);
                 html += `
                     <tr style="${isFav ? 'background-color:#fff9e6;' : ''}">
@@ -109,3 +114,5 @@
     renderTable();
     document.getElementById('searchInput').addEventListener('input', (e) => renderTable(e.target.value));
 </script>
+</body>
+</html>
