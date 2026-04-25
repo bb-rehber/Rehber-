@@ -51,7 +51,7 @@
     </div>
 </div>
 <script>
-    // 1. REHBER VERİSİ (Burası senin ana listen)
+    // 1. ANA VERİ LİSTESİ
     const rehberData = [
         {no: "106", ad: "RAKİME ÇİFTÇİ", birim: "TEFTİŞ KURULU MÜDÜRLÜĞÜ", unvan: "MÜFETTİŞ", konum: ""},
         {no: "107", ad: "MAHSUN İYİSAN", birim: "ULAŞIM HİZMETLERİ MÜDÜRLÜĞÜ", unvan: "PERSONEL", konum: ""},
@@ -63,33 +63,32 @@
 
     let favorites = JSON.parse(localStorage.getItem('rehberFavs')) || [];
 
+    // 2. EN GARANTİ TEMİZLEME FONKSİYONU (MÜDÜR ÇÖZÜCÜ)
+    function temizle(metin) {
+        if (!metin) return "";
+        return metin.toString()
+            .replace(/İ/g, "i").replace(/I/g, "i").replace(/ı/g, "i")
+            .replace(/Ü/g, "u").replace(/ü/g, "u")
+            .replace(/Ö/g, "o").replace(/ö/g, "o")
+            .replace(/Ş/g, "s").replace(/ş/g, "s")
+            .replace(/Ğ/g, "g").replace(/ğ/g, "g")
+            .replace(/Ç/g, "c").replace(/ç/g, "c")
+            .toLowerCase()
+            .trim();
+    }
+
     function toggleFav(no) {
         favorites = favorites.includes(no) ? favorites.filter(f => f !== no) : [...favorites, no];
         localStorage.setItem('rehberFavs', JSON.stringify(favorites));
         renderTable(document.getElementById('searchInput').value);
     }
 
-    // 2. TÜRKÇE KARAKTERLERİ "SÜPER TEMİZLEME" FONKSİYONU
-    // Bu fonksiyon "MÜDÜR" yazsan da "mudur" yazsan da aynı sonucu verir.
-    const superNormalize = (text) => {
-        if (!text) return "";
-        return text.toString()
-            .replace(/İ/g, "i") // Önce Büyük İ'yi i yap
-            .replace(/I/g, "i") // Büyük I'yı i yap
-            .replace(/ı/g, "i") // Küçük ı'yı i yap
-            .toLowerCase()      // Sonra her şeyi küçült (Ü'ler ü oldu)
-            .replace(/ü/g, "u") // Şimdi bütün ü'leri u yap
-            .replace(/ö/g, "o") // bütün ö'leri o yap
-            .replace(/ş/g, "s")
-            .replace(/ğ/g, "g")
-            .replace(/ç/g, "c")
-            .trim();
-    };
     function renderTable(filterText = "") {
-        const query = superNormalize(filterText);
+        const query = temizle(filterText);
         let html = "";
         let counter = 0;
 
+        // Önce favorileri başa alalım
         const sortedData = [...rehberData].sort((a, b) => {
             const aFav = favorites.includes(a.no) ? 1 : 0;
             const bFav = favorites.includes(b.no) ? 1 : 0;
@@ -97,19 +96,17 @@
         });
 
         sortedData.forEach(item => {
-            // Arama havuzu: No + Ad + Birim + Unvan + Konum
-            const searchPool = superNormalize(item.no + item.ad + item.birim + item.unvan + item.konum);
+            // Arama havuzu: Her şeyi yan yana koyup temizliyoruz
+            const aramaHavuzu = temizle(item.no + item.ad + item.birim + item.unvan + item.konum);
             
-            if (searchPool.includes(query)) {
+            if (aramaHavuzu.includes(query)) {
                 const isFav = favorites.includes(item.no);
                 html += `
                     <tr style="${isFav ? 'background-color: #fff9e6;' : ''}">
                         <td style="text-align:center;">
                             <span style="cursor:pointer; font-size:20px; color:${isFav ? '#ffca28' : '#ccc'};" onclick="toggleFav('${item.no}')">★</span>
                         </td>
-                        <td class="dahili-cell">
-                            <a href="tel:${item.no}" style="text-decoration:none; color:inherit;">📞 ${item.no}</a>
-                        </td>
+                        <td class="dahili-cell"><a href="tel:${item.no}" style="text-decoration:none; color:inherit;">📞 ${item.no}</a></td>
                         <td><strong>${item.ad}</strong></td>
                         <td>${item.birim}</td>
                         <td class="hide-mobile">${item.unvan}</td>
@@ -122,11 +119,10 @@
         document.getElementById('count').innerText = counter;
     }
 
-    // İlk yükleme
-    renderTable();
-
-    // Arama kutusu dinleyicisi
+    // ARAMA DİNLEYİCİSİ VE İLK ÇALIŞTIRMA
     document.getElementById('searchInput').addEventListener('input', (e) => {
         renderTable(e.target.value);
     });
+
+    renderTable(); // Sayfa açılınca tabloyu getir
 </script>
