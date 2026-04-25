@@ -74,17 +74,17 @@
     const superNormalize = (text) => {
         if (!text) return "";
         return text.toString()
-            .toUpperCase() // Önce her şeyi büyük yapıyoruz
-            .replace(/İ/g, "i").replace(/I/g, "i").replace(/ı/g, "i") // Tüm I ve İ'leri tek tipleştiriyoruz
-            .replace(/Ü/g, "u").replace(/ü/g, "u")
-            .replace(/Ö/g, "o").replace(/ö/g, "o")
-            .replace(/Ş/g, "s").replace(/ş/g, "s")
-            .replace(/Ğ/g, "g").replace(/ğ/g, "g")
-            .replace(/Ç/g, "c").replace(/ç/g, "c")
-            .toLowerCase() // Sonra her şeyi küçük yapıyoruz
+            .replace(/İ/g, "i") // Önce Büyük İ'yi i yap
+            .replace(/I/g, "i") // Büyük I'yı i yap
+            .replace(/ı/g, "i") // Küçük ı'yı i yap
+            .toLowerCase()      // Sonra her şeyi küçült (Ü'ler ü oldu)
+            .replace(/ü/g, "u") // Şimdi bütün ü'leri u yap
+            .replace(/ö/g, "o") // bütün ö'leri o yap
+            .replace(/ş/g, "s")
+            .replace(/ğ/g, "g")
+            .replace(/ç/g, "c")
             .trim();
     };
-
     function renderTable(filterText = "") {
         const query = superNormalize(filterText);
         let html = "";
