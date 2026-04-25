@@ -196,7 +196,6 @@
 </div>
 
 <script>
-        // Rehber Verisi
         const rehberData = [
             {no: "106", ad: "RAKİME ÇİFTÇİ", birim: "TEFTİŞ KURULU MÜDÜRLÜĞÜ", unvan: "MÜFETTİŞ", konum: ""},
             {no: "107", ad: "MAHSUN İYİSAN", birim: "ULAŞIM HİZMETLERİ MÜDÜRLÜĞÜ", unvan: "", konum: ""},
@@ -215,7 +214,8 @@
         }
 
         function renderTable(filterText = "") {
-            const query = filterText.toLowerCase();
+            // Türkçe karakter desteği ile arama (Küçük i / Büyük İ karmaşasını çözer)
+            const query = filterText.toLocaleLowerCase('tr-TR'); 
             let html = "";
             let counter = 0;
 
@@ -226,14 +226,21 @@
             });
 
             sortedData.forEach(item => {
-                if (Object.values(item).some(val => val.toLowerCase().includes(query))) {
+                // Tüm bilgileri birleştirip arıyoruz (Artık ünvan ve birim de aranabilir)
+                const combinedInfo = (item.no + item.ad + item.birim + item.unvan + item.konum).toLocaleLowerCase('tr-TR');
+                
+                if (combinedInfo.includes(query)) {
                     const isFav = favorites.includes(item.no);
                     html += `
                         <tr style="${isFav ? 'background-color: #fff9e6;' : ''}">
                             <td style="text-align:center;">
                                 <span style="cursor:pointer; font-size:20px; color:${isFav ? '#ffca28' : '#ccc'};" onclick="toggleFav('${item.no}')">★</span>
                             </td>
-                            <td class="dahili-cell">${item.no}</td>
+                            <td class="dahili-cell">
+                                <a href="tel:${item.no}" style="text-decoration:none; color:inherit;">
+                                    📞 ${item.no}
+                                </a>
+                            </td>
                             <td><strong>${item.ad}</strong></td>
                             <td>${item.birim}</td>
                             <td class="hide-mobile">${item.unvan}</td>
