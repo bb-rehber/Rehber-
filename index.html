@@ -51,19 +51,17 @@
     </div>
 </div>
 <script>
-    // 1. ANA VERİ LİSTESİ
     const rehberData = [
         {no: "106", ad: "RAKİME ÇİFTÇİ", birim: "TEFTİŞ KURULU MÜDÜRLÜĞÜ", unvan: "MÜFETTİŞ", konum: ""},
         {no: "107", ad: "MAHSUN İYİSAN", birim: "ULAŞIM HİZMETLERİ MÜDÜRLÜĞÜ", unvan: "PERSONEL", konum: ""},
         {no: "111", ad: "EYÜP YILDIZ", birim: "ÖZEL KALEM MÜDÜRLÜĞÜ", unvan: "DANIŞMAN", konum: ""},
         {no: "122", ad: "GÜLDANE ÖLMEZ", birim: "BİLGİ İŞLEM MÜDÜRLÜĞÜ", unvan: "OPERATÖR", konum: "ÇAĞRI MERKEZİ"},
         {no: "135", ad: "KERİM MERT YILMAZ", birim: "İMAR VE ŞEHİRCİLİK MÜDÜRLÜĞÜ", unvan: "MÜHENDİS", konum: "PROJE RUHSAT ŞEFLİĞİ"},
-        {no: "152", ad: "NURİ ÇAKAL", birim: "KENTSEL TASARIM MÜDÜRLÜĞÜ", unvan: "MÜDÜR", konum: ""}
+        {no: "152", ad: "NURİ ÇAKAL", birim: "KENTSEL TASARIM MÜDÜRLÜĞÜ", unvan: "MUDUR", konum: ""}
     ];
 
     let favorites = JSON.parse(localStorage.getItem('rehberFavs')) || [];
 
-    // 2. EN GARANTİ TEMİZLEME FONKSİYONU (MÜDÜR ÇÖZÜCÜ)
     function temizle(metin) {
         if (!metin) return "";
         return metin.toString()
@@ -73,8 +71,7 @@
             .replace(/Ş/g, "s").replace(/ş/g, "s")
             .replace(/Ğ/g, "g").replace(/ğ/g, "g")
             .replace(/Ç/g, "c").replace(/ç/g, "c")
-            .toLowerCase()
-            .trim();
+            .toLowerCase().trim();
     }
 
     function toggleFav(no) {
@@ -87,30 +84,20 @@
         const query = temizle(filterText);
         let html = "";
         let counter = 0;
-
-        // Önce favorileri başa alalım
-        const sortedData = [...rehberData].sort((a, b) => {
-            const aFav = favorites.includes(a.no) ? 1 : 0;
-            const bFav = favorites.includes(b.no) ? 1 : 0;
-            return bFav - aFav;
-        });
+        const sortedData = [...rehberData].sort((a, b) => (favorites.includes(b.no) - favorites.includes(a.no)));
 
         sortedData.forEach(item => {
-            // Arama havuzu: Her şeyi yan yana koyup temizliyoruz
             const aramaHavuzu = temizle(item.no + item.ad + item.birim + item.unvan + item.konum);
-            
             if (aramaHavuzu.includes(query)) {
                 const isFav = favorites.includes(item.no);
                 html += `
-                    <tr style="${isFav ? 'background-color: #fff9e6;' : ''}">
-                        <td style="text-align:center;">
-                            <span style="cursor:pointer; font-size:20px; color:${isFav ? '#ffca28' : '#ccc'};" onclick="toggleFav('${item.no}')">★</span>
-                        </td>
-                        <td class="dahili-cell"><a href="tel:${item.no}" style="text-decoration:none; color:inherit;">📞 ${item.no}</a></td>
+                    <tr style="${isFav ? 'background-color:#fff9e6;' : ''}">
+                        <td style="text-align:center;"><span style="cursor:pointer;font-size:20px;color:${isFav?'#ffca28':'#ccc'};" onclick="toggleFav('${item.no}')">★</span></td>
+                        <td class="dahili-cell"><a href="tel:${item.no}" style="text-decoration:none;color:inherit;">📞 ${item.no}</a></td>
                         <td><strong>${item.ad}</strong></td>
                         <td>${item.birim}</td>
                         <td class="hide-mobile">${item.unvan}</td>
-                        <td class="hide-mobile">${item.konum ? '<span class="badge-konum">' + item.konum + '</span>' : ''}</td>
+                        <td class="hide-mobile">${item.konum ? '<span class="badge-konum">'+item.konum+'</span>' : ''}</td>
                     </tr>`;
                 counter++;
             }
@@ -119,10 +106,6 @@
         document.getElementById('count').innerText = counter;
     }
 
-    // ARAMA DİNLEYİCİSİ VE İLK ÇALIŞTIRMA
-    document.getElementById('searchInput').addEventListener('input', (e) => {
-        renderTable(e.target.value);
-    });
-
-    renderTable(); // Sayfa açılınca tabloyu getir
+    renderTable();
+    document.getElementById('searchInput').addEventListener('input', (e) => renderTable(e.target.value));
 </script>
