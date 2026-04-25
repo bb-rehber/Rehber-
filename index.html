@@ -51,7 +51,7 @@
     </div>
 </div>
 <script>
-    // 1. REHBER LİSTESİ (Buraya istediğin kadar yeni kişi ekleyebilirsin)
+    // 1. REHBER VERİSİ
     const rehberData = [
         {no: "106", ad: "RAKİME ÇİFTÇİ", birim: "TEFTİŞ KURULU MÜDÜRLÜĞÜ", unvan: "MÜFETTİŞ", konum: ""},
         {no: "107", ad: "MAHSUN İYİSAN", birim: "ULAŞIM HİZMETLERİ MÜDÜRLÜĞÜ", unvan: "PERSONEL", konum: ""},
@@ -63,19 +63,19 @@
 
     let favorites = JSON.parse(localStorage.getItem('rehberFavs')) || [];
 
-    // Favori ekleme/çıkarma fonksiyonu
     function toggleFav(no) {
         favorites = favorites.includes(no) ? favorites.filter(f => f !== no) : [...favorites, no];
         localStorage.setItem('rehberFavs', JSON.stringify(favorites));
         renderTable(document.getElementById('searchInput').value);
     }
 
-    // ARAMA VE TABLO OLUŞTURMA FONKSİYONU
+    // 2. AKILLI ARAMA MOTORU (TÜRKÇE KARAKTER DOSTU)
     function renderTable(filterText = "") {
-        // Türkçe karakterleri "klavye dostu" hale getiren fonksiyon (Müdür/mudur/MÜDÜR ayrımını bitirir)
-        const standardize = (text) => {
+        // Bu fonksiyon hem aranan kelimeyi hem de listedeki veriyi "saf" hale getirir
+        // Ü'yü u, İ'yi i yaparak eşleşme hatasını sıfıra indirir.
+        const normalize = (text) => {
             return text.toString()
-                .replace(/İ/g, "i").replace(/I/g, "ı")
+                .replace(/İ/g, "i").replace(/I/g, "ı").replace(/ı/g, "i")
                 .replace(/Ü/g, "u").replace(/ü/g, "u")
                 .replace(/Ö/g, "o").replace(/ö/g, "o")
                 .replace(/Ş/g, "s").replace(/ş/g, "s")
@@ -84,11 +84,10 @@
                 .toLowerCase().trim();
         };
 
-        const query = standardize(filterText);
+        const query = normalize(filterText);
         let html = "";
         let counter = 0;
 
-        // Favorileri en üste alan sıralama mantığı
         const sortedData = [...rehberData].sort((a, b) => {
             const aFav = favorites.includes(a.no) ? 1 : 0;
             const bFav = favorites.includes(b.no) ? 1 : 0;
@@ -96,8 +95,8 @@
         });
 
         sortedData.forEach(item => {
-            // Dahili, İsim, Birim, Unvan ve Konumun hepsini tek bir havuzda birleştirip arıyoruz
-            const searchPool = standardize(item.no + item.ad + item.birim + item.unvan + item.konum);
+            // Arama havuzuna tüm sütunları ekliyoruz: No, Ad, Birim, Unvan, Konum
+            const searchPool = normalize(item.no + item.ad + item.birim + item.unvan + item.konum);
             
             if (searchPool.includes(query)) {
                 const isFav = favorites.includes(item.no);
@@ -121,11 +120,9 @@
         document.getElementById('count').innerText = counter;
     }
 
-    // Sayfa açıldığında tabloyu getir
+    // İlk açılışta tabloyu yükle
     renderTable();
 
-    // Arama kutusuna bir şey yazıldığında çalıştır
+    // Arama kutusuna yazıldığında anlık filtrele
     document.getElementById('searchInput').addEventListener('input', (e) => renderTable(e.target.value));
 </script>
-</body>
-</html>
