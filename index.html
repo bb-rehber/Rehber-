@@ -195,57 +195,60 @@
     </div>
 </div>
 
-// Rehber Verisi
-    const rehberData = [
-        {no: "106", ad: "RAKİME ÇİFTÇİ", birim: "TEFTİŞ KURULU MÜDÜRLÜĞÜ", unvan: "MÜFETTİŞ", konum: ""},
-        {no: "107", ad: "MAHSUN İYİSAN", birim: "ULAŞIM HİZMETLERİ MÜDÜRLÜĞÜ", unvan: "", konum: ""},
-        {no: "111", ad: "EYÜP YILDIZ", birim: "ÖZEL KALEM MÜDÜRLÜĞÜ", unvan: "DANIŞMAN", konum: ""},
-        {no: "122", ad: "GÜLDANE ÖLMEZ", birim: "BİLGİ İŞLEM MÜDÜRLÜĞÜ", unvan: "", konum: "ÇAĞRI MERKEZİ"},
-        {no: "135", ad: "KERİM MERT YILMAZ", birim: "İMAR VE ŞEHİRCİLİK MÜDÜRLÜĞÜ", unvan: "", konum: "PROJE RUHSAT ŞEFLİĞİ"},
-        {no: "152", ad: "NURİ ÇAKAL", birim: "KENTSEL TASARIM MÜDÜRLÜĞÜ", unvan: "MÜDÜR", konum: ""},
-    ];
+<script>
+        // Rehber Verisi
+        const rehberData = [
+            {no: "106", ad: "RAKİME ÇİFTÇİ", birim: "TEFTİŞ KURULU MÜDÜRLÜĞÜ", unvan: "MÜFETTİŞ", konum: ""},
+            {no: "107", ad: "MAHSUN İYİSAN", birim: "ULAŞIM HİZMETLERİ MÜDÜRLÜĞÜ", unvan: "", konum: ""},
+            {no: "111", ad: "EYÜP YILDIZ", birim: "ÖZEL KALEM MÜDÜRLÜĞÜ", unvan: "DANIŞMAN", konum: ""},
+            {no: "122", ad: "GÜLDANE ÖLMEZ", birim: "BİLGİ İŞLEM MÜDÜRLÜĞÜ", unvan: "", konum: "ÇAĞRI MERKEZİ"},
+            {no: "135", ad: "KERİM MERT YILMAZ", birim: "İMAR VE ŞEHİRCİLİK MÜDÜRLÜĞÜ", unvan: "", konum: "PROJE RUHSAT ŞEFLİĞİ"},
+            {no: "152", ad: "NURİ ÇAKAL", birim: "KENTSEL TASARIM MÜDÜRLÜĞÜ", unvan: "MÜDÜR", konum: ""},
+        ];
 
-    let favorites = JSON.parse(localStorage.getItem('rehberFavs')) || [];
+        let favorites = JSON.parse(localStorage.getItem('rehberFavs')) || [];
 
-    function toggleFav(no) {
-        favorites = favorites.includes(no) ? favorites.filter(f => f !== no) : [...favorites, no];
-        localStorage.setItem('rehberFavs', JSON.stringify(favorites));
-        renderTable(document.getElementById('searchInput').value);
-    }
+        function toggleFav(no) {
+            favorites = favorites.includes(no) ? favorites.filter(f => f !== no) : [...favorites, no];
+            localStorage.setItem('rehberFavs', JSON.stringify(favorites));
+            renderTable(document.getElementById('searchInput').value);
+        }
 
-    function renderTable(filterText = "") {
-        const query = filterText.toLowerCase();
-        let html = "";
-        let counter = 0;
+        function renderTable(filterText = "") {
+            const query = filterText.toLowerCase();
+            let html = "";
+            let counter = 0;
 
-        // Favorileri en üste taşı
-        const sortedData = [...rehberData].sort((a, b) => {
-            const aFav = favorites.includes(a.no) ? 1 : 0;
-            const bFav = favorites.includes(b.no) ? 1 : 0;
-            return bFav - aFav;
-        });
+            const sortedData = [...rehberData].sort((a, b) => {
+                const aFav = favorites.includes(a.no) ? 1 : 0;
+                const bFav = favorites.includes(b.no) ? 1 : 0;
+                return bFav - aFav;
+            });
 
-        sortedData.forEach(item => {
-            if (Object.values(item).some(val => val.toLowerCase().includes(query))) {
-                const isFav = favorites.includes(item.no);
-                html += `
-                    <tr style="${isFav ? 'background-color: #fff9e6;' : ''}">
-                        <td><span style="cursor:pointer; font-size:20px; color:${isFav ? '#ffca28' : '#ccc'};" onclick="toggleFav('${item.no}')">★</span></td>
-                        <td class="dahili-cell">${item.no}</td>
-                        <td><strong>${item.ad}</strong></td>
-                        <td>${item.birim}</td>
-                        <td class="hide-mobile">${item.unvan}</td>
-                        <td class="hide-mobile">${item.konum ? `<span class="badge-konum">${item.konum}</span>` : ''}</td>
-                    </tr>
-                `;
-                counter++;
-            }
-        });
-        document.getElementById('tableBody').innerHTML = html;
-        document.getElementById('count').innerText = counter;
-    }
+            sortedData.forEach(item => {
+                if (Object.values(item).some(val => val.toLowerCase().includes(query))) {
+                    const isFav = favorites.includes(item.no);
+                    html += `
+                        <tr style="${isFav ? 'background-color: #fff9e6;' : ''}">
+                            <td style="text-align:center;">
+                                <span style="cursor:pointer; font-size:20px; color:${isFav ? '#ffca28' : '#ccc'};" onclick="toggleFav('${item.no}')">★</span>
+                            </td>
+                            <td class="dahili-cell">${item.no}</td>
+                            <td><strong>${item.ad}</strong></td>
+                            <td>${item.birim}</td>
+                            <td class="hide-mobile">${item.unvan}</td>
+                            <td class="hide-mobile">${item.konum ? '<span class="badge-konum">' + item.konum + '</span>' : ''}</td>
+                        </tr>
+                    `;
+                    counter++;
+                }
+            });
+            document.getElementById('tableBody').innerHTML = html;
+            document.getElementById('count').innerText = counter;
+        }
 
-    renderTable();
-    document.getElementById('searchInput').addEventListener('input', (e) => renderTable(e.target.value));
+        renderTable();
+        document.getElementById('searchInput').addEventListener('input', (e) => renderTable(e.target.value));
+    </script>
 </body>
 </html>
