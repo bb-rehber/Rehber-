@@ -181,6 +181,7 @@
         <table>
             <thead>
                 <tr>
+                    <th>⭐</th>
                     <th>Dahili No</th>
                     <th>Ad Soyad</th>
                     <th>Birim</th>
@@ -194,8 +195,7 @@
     </div>
 </div>
 
-<script>
-    // Gönderdiğin örnek listeden birkaç veri ekledim
+// Rehber Verisi
     const rehberData = [
         {no: "106", ad: "RAKİME ÇİFTÇİ", birim: "TEFTİŞ KURULU MÜDÜRLÜĞÜ", unvan: "MÜFETTİŞ", konum: ""},
         {no: "107", ad: "MAHSUN İYİSAN", birim: "ULAŞIM HİZMETLERİ MÜDÜRLÜĞÜ", unvan: "", konum: ""},
@@ -203,28 +203,34 @@
         {no: "122", ad: "GÜLDANE ÖLMEZ", birim: "BİLGİ İŞLEM MÜDÜRLÜĞÜ", unvan: "", konum: "ÇAĞRI MERKEZİ"},
         {no: "135", ad: "KERİM MERT YILMAZ", birim: "İMAR VE ŞEHİRCİLİK MÜDÜRLÜĞÜ", unvan: "", konum: "PROJE RUHSAT ŞEFLİĞİ"},
         {no: "152", ad: "NURİ ÇAKAL", birim: "KENTSEL TASARIM MÜDÜRLÜĞÜ", unvan: "MÜDÜR", konum: ""},
-        // ... 1200 kişi buraya JSON formatında eklenecek
     ];
 
-    const tableBody = document.getElementById('tableBody');
-    const searchInput = document.getElementById('searchInput');
-    const countDisplay = document.getElementById('count');
+    let favorites = JSON.parse(localStorage.getItem('rehberFavs')) || [];
+
+    function toggleFav(no) {
+        favorites = favorites.includes(no) ? favorites.filter(f => f !== no) : [...favorites, no];
+        localStorage.setItem('rehberFavs', JSON.stringify(favorites));
+        renderTable(document.getElementById('searchInput').value);
+    }
 
     function renderTable(filterText = "") {
         const query = filterText.toLowerCase();
         let html = "";
         let counter = 0;
 
-        rehberData.forEach(item => {
-            if (
-                item.ad.toLowerCase().includes(query) || 
-                item.no.includes(query) || 
-                item.birim.toLowerCase().includes(query) ||
-                item.unvan.toLowerCase().includes(query) ||
-                item.konum.toLowerCase().includes(query)
-            ) {
+        // Favorileri en üste taşı
+        const sortedData = [...rehberData].sort((a, b) => {
+            const aFav = favorites.includes(a.no) ? 1 : 0;
+            const bFav = favorites.includes(b.no) ? 1 : 0;
+            return bFav - aFav;
+        });
+
+        sortedData.forEach(item => {
+            if (Object.values(item).some(val => val.toLowerCase().includes(query))) {
+                const isFav = favorites.includes(item.no);
                 html += `
-                    <tr>
+                    <tr style="${isFav ? 'background-color: #fff9e6;' : ''}">
+                        <td><span style="cursor:pointer; font-size:20px; color:${isFav ? '#ffca28' : '#ccc'};" onclick="toggleFav('${item.no}')">★</span></td>
                         <td class="dahili-cell">${item.no}</td>
                         <td><strong>${item.ad}</strong></td>
                         <td>${item.birim}</td>
@@ -235,17 +241,11 @@
                 counter++;
             }
         });
-
-        tableBody.innerHTML = html;
-        countDisplay.innerText = counter;
+        document.getElementById('tableBody').innerHTML = html;
+        document.getElementById('count').innerText = counter;
     }
 
-    // İlk açılış
     renderTable();
-
-    // Arama tetikleyici
-    searchInput.addEventListener('input', (e) => renderTable(e.target.value));
-</script>
-
+    document.getElementById('searchInput').addEventListener('input', (e) => renderTable(e.target.value));
 </body>
 </html>
