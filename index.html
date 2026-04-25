@@ -69,7 +69,7 @@
     }
 
     function renderTable(filterText = "") {
-        const query = filterText.toLocaleLowerCase('tr-TR').trim();
+        const query = filterText.toLowerCase().trim();
         let html = "";
         let counter = 0;
 
@@ -80,7 +80,7 @@
         });
 
         sortedData.forEach(item => {
-            const rowContent = (item.no + item.ad + item.birim + item.unvan + item.konum).toLocaleLowerCase('tr-TR');
+            const rowContent = (item.no + item.ad + item.birim + item.unvan + item.konum).toLowerCase();
             if (rowContent.includes(query)) {
                 const isFav = favorites.includes(item.no);
                 html += `
