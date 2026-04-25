@@ -51,7 +51,7 @@
     </div>
 </div>
 <script>
-    // 1. REHBER VERİSİ
+    // 1. REHBER VERİSİ (Burası senin ana listen)
     const rehberData = [
         {no: "106", ad: "RAKİME ÇİFTÇİ", birim: "TEFTİŞ KURULU MÜDÜRLÜĞÜ", unvan: "MÜFETTİŞ", konum: ""},
         {no: "107", ad: "MAHSUN İYİSAN", birim: "ULAŞIM HİZMETLERİ MÜDÜRLÜĞÜ", unvan: "PERSONEL", konum: ""},
@@ -69,22 +69,24 @@
         renderTable(document.getElementById('searchInput').value);
     }
 
-    // 2. AKILLI ARAMA MOTORU (TÜRKÇE KARAKTER DOSTU)
-    function renderTable(filterText = "") {
-        // Bu fonksiyon hem aranan kelimeyi hem de listedeki veriyi "saf" hale getirir
-        // Ü'yü u, İ'yi i yaparak eşleşme hatasını sıfıra indirir.
-        const normalize = (text) => {
-            return text.toString()
-                .replace(/İ/g, "i").replace(/I/g, "ı").replace(/ı/g, "i")
-                .replace(/Ü/g, "u").replace(/ü/g, "u")
-                .replace(/Ö/g, "o").replace(/ö/g, "o")
-                .replace(/Ş/g, "s").replace(/ş/g, "s")
-                .replace(/Ğ/g, "g").replace(/ğ/g, "g")
-                .replace(/Ç/g, "c").replace(/ç/g, "c")
-                .toLowerCase().trim();
-        };
+    // 2. TÜRKÇE KARAKTERLERİ "SÜPER TEMİZLEME" FONKSİYONU
+    // Bu fonksiyon "MÜDÜR" yazsan da "mudur" yazsan da aynı sonucu verir.
+    const superNormalize = (text) => {
+        if (!text) return "";
+        return text.toString()
+            .toUpperCase() // Önce her şeyi büyük yapıyoruz
+            .replace(/İ/g, "i").replace(/I/g, "i").replace(/ı/g, "i") // Tüm I ve İ'leri tek tipleştiriyoruz
+            .replace(/Ü/g, "u").replace(/ü/g, "u")
+            .replace(/Ö/g, "o").replace(/ö/g, "o")
+            .replace(/Ş/g, "s").replace(/ş/g, "s")
+            .replace(/Ğ/g, "g").replace(/ğ/g, "g")
+            .replace(/Ç/g, "c").replace(/ç/g, "c")
+            .toLowerCase() // Sonra her şeyi küçük yapıyoruz
+            .trim();
+    };
 
-        const query = normalize(filterText);
+    function renderTable(filterText = "") {
+        const query = superNormalize(filterText);
         let html = "";
         let counter = 0;
 
@@ -95,8 +97,8 @@
         });
 
         sortedData.forEach(item => {
-            // Arama havuzuna tüm sütunları ekliyoruz: No, Ad, Birim, Unvan, Konum
-            const searchPool = normalize(item.no + item.ad + item.birim + item.unvan + item.konum);
+            // Arama havuzu: No + Ad + Birim + Unvan + Konum
+            const searchPool = superNormalize(item.no + item.ad + item.birim + item.unvan + item.konum);
             
             if (searchPool.includes(query)) {
                 const isFav = favorites.includes(item.no);
@@ -120,9 +122,11 @@
         document.getElementById('count').innerText = counter;
     }
 
-    // İlk açılışta tabloyu yükle
+    // İlk yükleme
     renderTable();
 
-    // Arama kutusuna yazıldığında anlık filtrele
-    document.getElementById('searchInput').addEventListener('input', (e) => renderTable(e.target.value));
+    // Arama kutusu dinleyicisi
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+        renderTable(e.target.value);
+    });
 </script>
