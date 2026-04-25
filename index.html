@@ -51,28 +51,44 @@
     </div>
 </div>
 <script>
+    // 1. REHBER LİSTESİ (Buraya istediğin kadar yeni kişi ekleyebilirsin)
     const rehberData = [
         {no: "106", ad: "RAKİME ÇİFTÇİ", birim: "TEFTİŞ KURULU MÜDÜRLÜĞÜ", unvan: "MÜFETTİŞ", konum: ""},
         {no: "107", ad: "MAHSUN İYİSAN", birim: "ULAŞIM HİZMETLERİ MÜDÜRLÜĞÜ", unvan: "PERSONEL", konum: ""},
         {no: "111", ad: "EYÜP YILDIZ", birim: "ÖZEL KALEM MÜDÜRLÜĞÜ", unvan: "DANIŞMAN", konum: ""},
         {no: "122", ad: "GÜLDANE ÖLMEZ", birim: "BİLGİ İŞLEM MÜDÜRLÜĞÜ", unvan: "OPERATÖR", konum: "ÇAĞRI MERKEZİ"},
         {no: "135", ad: "KERİM MERT YILMAZ", birim: "İMAR VE ŞEHİRCİLİK MÜDÜRLÜĞÜ", unvan: "MÜHENDİS", konum: "PROJE RUHSAT ŞEFLİĞİ"},
-        {no: "152", ad: "NURİ ÇAKAL", birim: "KENTSEL TASARIM MÜDÜRLÜĞÜ", unvan: "müdür", konum: ""}
+        {no: "152", ad: "NURİ ÇAKAL", birim: "KENTSEL TASARIM MÜDÜRLÜĞÜ", unvan: "MÜDÜR", konum: ""}
     ];
 
     let favorites = JSON.parse(localStorage.getItem('rehberFavs')) || [];
 
+    // Favori ekleme/çıkarma fonksiyonu
     function toggleFav(no) {
         favorites = favorites.includes(no) ? favorites.filter(f => f !== no) : [...favorites, no];
         localStorage.setItem('rehberFavs', JSON.stringify(favorites));
         renderTable(document.getElementById('searchInput').value);
     }
 
+    // ARAMA VE TABLO OLUŞTURMA FONKSİYONU
     function renderTable(filterText = "") {
-        const query = filterText.toLowerCase().trim();
+        // Türkçe karakterleri "klavye dostu" hale getiren fonksiyon (Müdür/mudur/MÜDÜR ayrımını bitirir)
+        const standardize = (text) => {
+            return text.toString()
+                .replace(/İ/g, "i").replace(/I/g, "ı")
+                .replace(/Ü/g, "u").replace(/ü/g, "u")
+                .replace(/Ö/g, "o").replace(/ö/g, "o")
+                .replace(/Ş/g, "s").replace(/ş/g, "s")
+                .replace(/Ğ/g, "g").replace(/ğ/g, "g")
+                .replace(/Ç/g, "c").replace(/ç/g, "c")
+                .toLowerCase().trim();
+        };
+
+        const query = standardize(filterText);
         let html = "";
         let counter = 0;
 
+        // Favorileri en üste alan sıralama mantığı
         const sortedData = [...rehberData].sort((a, b) => {
             const aFav = favorites.includes(a.no) ? 1 : 0;
             const bFav = favorites.includes(b.no) ? 1 : 0;
@@ -80,17 +96,23 @@
         });
 
         sortedData.forEach(item => {
-            const rowContent = (item.no + item.ad + item.birim + item.unvan + item.konum).toLowerCase();
-            if (rowContent.includes(query)) {
+            // Dahili, İsim, Birim, Unvan ve Konumun hepsini tek bir havuzda birleştirip arıyoruz
+            const searchPool = standardize(item.no + item.ad + item.birim + item.unvan + item.konum);
+            
+            if (searchPool.includes(query)) {
                 const isFav = favorites.includes(item.no);
                 html += `
                     <tr style="${isFav ? 'background-color: #fff9e6;' : ''}">
-                        <td><span style="cursor:pointer;font-size:20px;color:${isFav?'#ffca28':'#ccc'};" onclick="toggleFav('${item.no}')">★</span></td>
-                        <td class="dahili-cell"><a href="tel:${item.no}" style="text-decoration:none;color:inherit;">📞 ${item.no}</a></td>
+                        <td style="text-align:center;">
+                            <span style="cursor:pointer; font-size:20px; color:${isFav ? '#ffca28' : '#ccc'};" onclick="toggleFav('${item.no}')">★</span>
+                        </td>
+                        <td class="dahili-cell">
+                            <a href="tel:${item.no}" style="text-decoration:none; color:inherit;">📞 ${item.no}</a>
+                        </td>
                         <td><strong>${item.ad}</strong></td>
                         <td>${item.birim}</td>
                         <td class="hide-mobile">${item.unvan}</td>
-                        <td class="hide-mobile">${item.konum ? '<span class="badge-konum">'+item.konum+'</span>' : ''}</td>
+                        <td class="hide-mobile">${item.konum ? '<span class="badge-konum">' + item.konum + '</span>' : ''}</td>
                     </tr>`;
                 counter++;
             }
@@ -99,7 +121,10 @@
         document.getElementById('count').innerText = counter;
     }
 
+    // Sayfa açıldığında tabloyu getir
     renderTable();
+
+    // Arama kutusuna bir şey yazıldığında çalıştır
     document.getElementById('searchInput').addEventListener('input', (e) => renderTable(e.target.value));
 </script>
 </body>
