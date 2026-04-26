@@ -62,6 +62,21 @@
     ];
 
     function temizle(metin) {
+    if (!metin) return "";
+
+    let m = metin.toString().toLocaleLowerCase('tr-TR');
+
+    const map = {
+        'ç':'c',
+        'ğ':'g',
+        'ş':'s',
+        'ü':'u',
+        'ö':'o',
+        'ı':'i'
+    };
+
+    return m.replace(/[çğşüöı]/g, s => map[s]).trim();
+}
         if (!metin) return "";
         let m = metin.toString().toLocaleLowerCase('tr-TR');
         const map = {'ç':'c','ğ':'g','ş':'s','ü':'u','ö':'o','ı':'i','İ':'i'};
