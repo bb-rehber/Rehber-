@@ -27,6 +27,7 @@
     </style>
 </head>
 <body>
+
 <header>
     <div class="brand">
         <img src="https://www.bagcilar.bel.tr/assets/img/logo.png" style="height: 50px;">
@@ -37,6 +38,7 @@
     </div>
     <input type="text" id="searchInput" class="search-input" placeholder="İsim, birim veya unvan ara...">
 </header>
+
 <div class="content">
     <div class="info-bar">Görüntülenen Kayıt: <strong id="count">0</strong></div>
     <div class="table-container">
@@ -52,7 +54,6 @@
 </div>
 
 <script>
-    // 1. Veri Listesi (Nuri Bey burada bekliyor)
     const rehberData = [
         {no: "106", ad: "RAKİME ÇİFTÇİ", birim: "TEFTİŞ KURULU MÜDÜRLÜĞÜ", unvan: "MÜFETTİŞ", konum: ""},
         {no: "107", ad: "MAHSUN İYİSAN", birim: "ULAŞIM HİZMETLERİ MÜDÜRLÜĞÜ", unvan: "PERSONEL", konum: ""},
@@ -62,23 +63,19 @@
         {no: "152", ad: "NURİ ÇAKAL", birim: "KENTSEL TASARIM MÜDÜRLÜĞÜ", unvan: "MÜDÜR", konum: ""}
     ];
 
-    // 2. Harf Düzenleyici (Müdür sorununu kökten çözen yer burası)
+    // MÜDÜR kelimesindeki Ü ve İ harflerini garantili çözen fonksiyon
     function temizle(metin) {
         if (!metin) return "";
-        let m = metin.toString().toLocaleLowerCase('tr-TR');
+        let m = metin.toString().toUpperCase(); // Hepsini önce BÜYÜK yapıyoruz
         const map = {
-            'ç':'c', 'ğ':'g', 'ş':'s', 'ü':'u', 'ö':'o', 'ı':'i',
-            'İ':'i', 'Ğ':'g', 'Ü':'u', 'Ş':'s', 'Ö':'o', 'Ç':'c'
+            'Ç':'C', 'Ğ':'G', 'Ş':'S', 'Ü':'U', 'Ö':'O', 'İ':'I', 'I':'I'
         };
-        return m.replace(/[çğşüöıİĞÜŞÖÇ]/g, s => map[s] || s).trim();
+        return m.replace(/[ÇĞŞÜÖİI]/g, s => map[s] || s).toLowerCase().trim();
     }
 
-    // 3. Tabloyu Ekrana Basan Fonksiyon
     function tabloyuGoster(liste) {
         const tableBody = document.getElementById("tableBody");
         const count = document.getElementById("count");
-        
-        if (!tableBody) return; // Hata almamak için kontrol
         
         tableBody.innerHTML = "";
         count.textContent = liste.length;
@@ -91,25 +88,25 @@
                     <td>${k.ad}</td>
                     <td>${k.birim}</td>
                     <td class="hide-mobile">${k.unvan}</td>
-                    <td class="hide-mobile">${k.konum ? '<span class="badge-konum">' + k.konum + '</span>' : ''}</td>
+                    <td class="hide-mobile">${k.konum ? `<span class="badge-konum">${k.konum}</span>` : ''}</td>
                 </tr>`;
         });
     }
 
-    // 4. Arama Motoru (Yazınca tetiklenen kısım)
-    document.getElementById("searchInput").addEventListener("input", function () {
+    document.getElementById("searchInput").addEventListener("input", function() {
         const aranan = temizle(this.value);
-
         const sonuc = rehberData.filter(k => 
             temizle(k.ad).includes(aranan) || 
             temizle(k.birim).includes(aranan) || 
             temizle(k.unvan).includes(aranan) ||
             k.no.includes(aranan)
         );
-
         tabloyuGoster(sonuc);
     });
 
-    // 5. BAŞLAT (Sayfa açıldığında tablo dolsun)
+    // Sayfa açılır açılmaz listeyi getir
     tabloyuGoster(rehberData);
 </script>
+
+</body>
+</html>
