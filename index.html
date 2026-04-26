@@ -63,17 +63,12 @@
 
     let favorites = JSON.parse(localStorage.getItem('rehberFavs')) || [];
 
-    // EN GARANTİ TEMİZLEME MOTORU
     function temizle(metin) {
         if (!metin) return "";
         return metin.toString()
-            .replace(/İ/g, "i").replace(/I/g, "i").replace(/ı/g, "i") // Önce I ve İ harflerini düzelt
-            .toLowerCase() // ŞİMDİ her şeyi küçült (Bütün Ü'ler ü oldu)
-            .replace(/ü/g, "u") // Artık hepsi küçük olduğu için bu şak diye bulur
-            .replace(/ö/g, "o")
-            .replace(/ş/g, "s")
-            .replace(/ğ/g, "g")
-            .replace(/ç/g, "c")
+            .replace(/İ/g, "i").replace(/I/g, "i").replace(/ı/g, "i")
+            .toLowerCase()
+            .replace(/ü/g, "u").replace(/ö/g, "o").replace(/ş/g, "s").replace(/ğ/g, "g").replace(/ç/g, "c")
             .trim();
     }
 
@@ -87,13 +82,10 @@
         const query = temizle(filterText);
         let html = "";
         let counter = 0;
-        
         const sortedData = [...rehberData].sort((a, b) => (favorites.includes(b.no) - favorites.includes(a.no)));
 
         sortedData.forEach(item => {
-            // Her alanı tek tek temizleyip birleştiriyoruz
-            const birlesikMetin = temizle(item.no) + temizle(item.ad) + temizle(item.birim) + temizle(item.unvan) + temizle(item.konum);
-            
+            const birlesikMetin = temizle(item.no + item.ad + item.birim + item.unvan + item.konum);
             if (birlesikMetin.includes(query)) {
                 const isFav = favorites.includes(item.no);
                 html += `
