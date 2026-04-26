@@ -63,7 +63,7 @@
 
     function temizle(metin) {
         if (!metin) return "";
-        let m = metin.toString().toLowerCase();
+        let m = metin.toString().toLocaleLowerCase('tr-TR');
         const map = {'ç':'c','ğ':'g','ş':'s','ü':'u','ö':'o','ı':'i','İ':'i'};
         return m.replace(/[çğşüöıİ]/g, s => map[s]).trim();
     }
