@@ -95,10 +95,11 @@
 
     document.getElementById("searchInput").addEventListener("input", function() {
         const aranan = temizle(this.value);
-        const sonuc = rehberData.filter(k => 
+       const sonuc = rehberData.filter(k => 
             temizle(k.ad).includes(aranan) || 
             temizle(k.birim).includes(aranan) || 
             temizle(k.unvan).includes(aranan) ||
+            temizle(k.konum || "").includes(aranan) || // <-- Konum araması buraya eklendi
             k.no.includes(aranan)
         );
         tabloyuGoster(sonuc);
