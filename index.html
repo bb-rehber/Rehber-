@@ -96,19 +96,24 @@ function tabloyuDoldur(liste) {
     document.getElementById('count').innerText = liste.length;
 }
 
-// 2. Arama kutusunu aktif et
+// 2. Arama kutusunu aktif et (KESİN ÇÖZÜM)
 document.getElementById('searchInput').oninput = function(e) {
-    const aranan = temizle(e.target.value);
-    const sonuc = rehberData.filter(k => 
-        temizle(k.ad).includes(aranan) || 
-        temizle(k.birim).includes(aranan) || 
-        temizle(k.unvan).includes(aranan) || 
-        k.no.includes(aranan)
-    );
+    const aranan = temizle(e.target.value); // Senin yazdığını "mudur" yapar
+    
+    const sonuc = rehberData.filter(k => {
+        // Her sütunu tek tek temizleyerek kontrol ediyoruz
+        const adCheck = temizle(k.ad).includes(aranan);
+        const birimCheck = temizle(k.birim).includes(aranan);
+        const unvanCheck = temizle(k.unvan).includes(aranan); // Ünvanı "mudur" yapar ve bakar
+        const noCheck = k.no.toString().includes(aranan);
+
+        return adCheck || birimCheck || unvanCheck || noCheck;
+    });
+    
     tabloyuDoldur(sonuc);
 };
 
-// 3. SİHİRLİ DOKUNUŞ: Sayfa açılır açılmaz listeyi getir
+// 3. Sayfa ilk açıldığında listeyi bas
 tabloyuDoldur(rehberData);
 
 </script>
