@@ -52,7 +52,6 @@
 </div>
 
 <script>
-    // 1. Veri Listesi
     const rehberData = [
         {no: "106", ad: "RAKİME ÇİFTÇİ", birim: "TEFTİŞ KURULU MÜDÜRLÜĞÜ", unvan: "MÜFETTİŞ", konum: ""},
         {no: "107", ad: "MAHSUN İYİSAN", birim: "ULAŞIM HİZMETLERİ MÜDÜRLÜĞÜ", unvan: "PERSONEL", konum: ""},
@@ -62,13 +61,32 @@
         {no: "152", ad: "NURİ ÇAKAL", birim: "KENTSEL TASARIM MÜDÜRLÜĞÜ", unvan: "MÜDÜR", konum: ""}
     ];
 
-    // 2. Harf Düzenleyici (Müdür kelimesindeki Ü harfini çözen kısım)
     function temizle(metin) {
-    if (!metin) return "";
-    let m = metin.toString().toLowerCase();
-    const map = {
-        'ç':'c', 'ğ':'g', 'ş':'s', 'ü':'u', 'ö':'o', 'ı':'i',
-        'Ç':'c', 'Ğ':'g', 'Ş':'s', 'Ü':'u', 'Ö':'o', 'İ':'i'
-    };
-    return m.replace(/[çğşüöıİĞÜŞÖÇ]/g, s => map[s]).trim();
-}
+        if (!metin) return "";
+        let m = metin.toString().toLowerCase();
+        const map = {'ç':'c','ğ':'g','ş':'s','ü':'u','ö':'o','ı':'i','İ':'i'};
+        return m.replace(/[çğşüöıİ]/g, s => map[s]).trim();
+    }
+
+    function tabloyuGoster(liste) {
+        const tableBody = document.getElementById("tableBody");
+        const count = document.getElementById("count");
+        tableBody.innerHTML = "";
+        count.textContent = liste.length;
+        liste.forEach(k => {
+            tableBody.innerHTML += `<tr><td>⭐</td><td>${k.no}</td><td>${k.ad}</td><td>${k.birim}</td><td>${k.unvan}</td><td>${k.konum}</td></tr>`;
+        });
+    }
+
+    document.getElementById("searchInput").addEventListener("input", function () {
+        const aranan = temizle(this.value);
+        const sonuc = rehberData.filter(k => 
+            temizle(k.ad).includes(aranan) || 
+            temizle(k.birim).includes(aranan) || 
+            temizle(k.unvan).includes(aranan)
+        );
+        tabloyuGoster(sonuc);
+    });
+
+    tabloyuGoster(rehberData);
+</script>
