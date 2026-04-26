@@ -66,13 +66,15 @@
     function temizle(metin) {
         if (!metin) return "";
         return metin.toString()
-            .replace(/İ/g, "i").replace(/ı/g, "i")
-            .replace(/Ü/g, "u").replace(/ü/g, "u")
-            .replace(/Ö/g, "o").replace(/ö/g, "o")
-            .replace(/Ş/g, "s").replace(/ş/g, "s")
-            .replace(/Ğ/g, "g").replace(/ğ/g, "g")
-            .replace(/Ç/g, "c").replace(/ç/g, "c")
-            .toLowerCase().trim();
+            .toLowerCase() // Önce her şeyi küçültüyoruz (Büyük Ü'ler ü olsun diye)
+            .normalize('NFD') // Karakterleri bileşenlerine ayırır (vurgu/nokta ayırma)
+            .replace(/ı/g, "i")
+            .replace(/ü/g, "u")
+            .replace(/ö/g, "o")
+            .replace(/ş/g, "s")
+            .replace(/ğ/g, "g")
+            .replace(/ç/g, "c")
+            .trim();
     }
 
     // 3. Tabloyu Dolduran İşçi
