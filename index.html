@@ -52,7 +52,7 @@
 </div>
 
 <script>
-    // 1. Veri Listesi
+    // 1. Veri Listesi (Nuri Bey burada bekliyor)
     const rehberData = [
         {no: "106", ad: "RAKİME ÇİFTÇİ", birim: "TEFTİŞ KURULU MÜDÜRLÜĞÜ", unvan: "MÜFETTİŞ", konum: ""},
         {no: "107", ad: "MAHSUN İYİSAN", birim: "ULAŞIM HİZMETLERİ MÜDÜRLÜĞÜ", unvan: "PERSONEL", konum: ""},
@@ -62,7 +62,7 @@
         {no: "152", ad: "NURİ ÇAKAL", birim: "KENTSEL TASARIM MÜDÜRLÜĞÜ", unvan: "MÜDÜR", konum: ""}
     ];
 
-    // 2. Harf Düzenleyici (Senin kodundaki karmaşayı burası çözüyor)
+    // 2. Harf Düzenleyici (Müdür sorununu kökten çözen yer burası)
     function temizle(metin) {
         if (!metin) return "";
         let m = metin.toString().toLocaleLowerCase('tr-TR');
@@ -73,39 +73,43 @@
         return m.replace(/[çğşüöıİĞÜŞÖÇ]/g, s => map[s] || s).trim();
     }
 
-    // 3. Tabloyu Dolduran Fonksiyon
+    // 3. Tabloyu Ekrana Basan Fonksiyon
     function tabloyuGoster(liste) {
         const tableBody = document.getElementById("tableBody");
         const count = document.getElementById("count");
-        if(!tableBody) return;
+        
+        if (!tableBody) return; // Hata almamak için kontrol
         
         tableBody.innerHTML = "";
         count.textContent = liste.length;
-        
+
         liste.forEach(k => {
-            tableBody.innerHTML += `<tr>
-                <td>⭐</td>
-                <td class="dahili-cell">${k.no}</td>
-                <td>${k.ad}</td>
-                <td>${k.birim}</td>
-                <td class="hide-mobile">${k.unvan}</td>
-                <td class="hide-mobile">${k.konum ? `<span class="badge-konum">${k.konum}</span>` : ''}</td>
-            </tr>`;
+            tableBody.innerHTML += `
+                <tr>
+                    <td>⭐</td>
+                    <td class="dahili-cell">${k.no}</td>
+                    <td>${k.ad}</td>
+                    <td>${k.birim}</td>
+                    <td class="hide-mobile">${k.unvan}</td>
+                    <td class="hide-mobile">${k.konum ? '<span class="badge-konum">' + k.konum + '</span>' : ''}</td>
+                </tr>`;
         });
     }
 
-    // 4. Arama Motoru
+    // 4. Arama Motoru (Yazınca tetiklenen kısım)
     document.getElementById("searchInput").addEventListener("input", function () {
         const aranan = temizle(this.value);
+
         const sonuc = rehberData.filter(k => 
             temizle(k.ad).includes(aranan) || 
             temizle(k.birim).includes(aranan) || 
             temizle(k.unvan).includes(aranan) ||
             k.no.includes(aranan)
         );
+
         tabloyuGoster(sonuc);
     });
 
-    // 5. Başlat
+    // 5. BAŞLAT (Sayfa açıldığında tablo dolsun)
     tabloyuGoster(rehberData);
 </script>
