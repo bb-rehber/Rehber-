@@ -102,14 +102,8 @@ document.getElementById('searchInput').oninput = function(e) {
     const sonuc = rehberData.filter(k => 
         temizle(k.ad).includes(aranan) || 
         temizle(k.birim).includes(aranan) || 
+        temizle(k.unvan).includes(aranan) || // <--- MÜDÜR kelimesini bulması için bu şartı ekledik!
         k.no.includes(aranan)
     );
     tabloyuDoldur(sonuc);
 };
-
-// 3. Sayfa açılır açılmaz listeyi getir
-tabloyuDoldur(rehberData);
-
-</script>
-</body>
-</html>
