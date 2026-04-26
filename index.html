@@ -64,51 +64,11 @@
 
     // 2. Harf Düzenleyici (Müdür kelimesindeki Ü harfini çözen kısım)
     function temizle(metin) {
-        if (!metin) return "";
-        return metin.toString()
-            .toLowerCase() // Önce her şeyi küçültüyoruz (Büyük Ü'ler ü olsun diye)
-            .normalize('NFD') // Karakterleri bileşenlerine ayırır (vurgu/nokta ayırma)
-            .replace(/ı/g, "i")
-            .replace(/ü/g, "u")
-            .replace(/ö/g, "o")
-            .replace(/ş/g, "s")
-            .replace(/ğ/g, "g")
-            .replace(/ç/g, "c")
-            .trim();
-    }
-
-    // 3. Tabloyu Dolduran İşçi
-    function tabloyuDoldur(liste) {
-        const govde = document.getElementById('tableBody');
-        const sayac = document.getElementById('count');
-        govde.innerHTML = ""; 
-        
-        liste.forEach(kisi => {
-            govde.innerHTML += `
-                <tr>
-                    <td>⭐</td>
-                    <td class="dahili-cell">${kisi.no}</td>
-                    <td>${kisi.ad}</td>
-                    <td>${kisi.birim}</td>
-                    <td class="hide-mobile">${kisi.unvan}</td>
-                    <td class="hide-mobile">${kisi.konum ? `<span class="badge-konum">${kisi.konum}</span>` : ''}</td>
-                </tr>`;
-        });
-        sayac.innerText = liste.length;
-    }
-
-    // 4. Arama Motoru (Ünvanlara da bakıyor)
-    document.getElementById('searchInput').oninput = function(e) {
-        const aranan = temizle(e.target.value);
-        const sonuc = rehberData.filter(k => 
-            temizle(k.ad).includes(aranan) || 
-            temizle(k.birim).includes(aranan) || 
-            temizle(k.unvan).includes(aranan) || 
-            k.no.includes(aranan)
-        );
-        tabloyuDoldur(sonuc);
+    if (!metin) return "";
+    let m = metin.toString().toLowerCase();
+    const map = {
+        'ç':'c', 'ğ':'g', 'ş':'s', 'ü':'u', 'ö':'o', 'ı':'i',
+        'Ç':'c', 'Ğ':'g', 'Ş':'s', 'Ü':'u', 'Ö':'o', 'İ':'i'
     };
-
-    // 5. BAŞLAT (Sayfa açılınca listeyi getir)
-    tabloyuDoldur(rehberData);
-</script>
+    return m.replace(/[çğşüöıİĞÜŞÖÇ]/g, s => map[s]).trim();
+}
