@@ -52,6 +52,7 @@
 </div>
 
 <script>
+    // 1. Veri Listesi
     const rehberData = [
         {no: "106", ad: "RAKİME ÇİFTÇİ", birim: "TEFTİŞ KURULU MÜDÜRLÜĞÜ", unvan: "MÜFETTİŞ", konum: ""},
         {no: "107", ad: "MAHSUN İYİSAN", birim: "ULAŞIM HİZMETLERİ MÜDÜRLÜĞÜ", unvan: "PERSONEL", konum: ""},
@@ -61,61 +62,51 @@
         {no: "152", ad: "NURİ ÇAKAL", birim: "KENTSEL TASARIM MÜDÜRLÜĞÜ", unvan: "MÜDÜR", konum: ""}
     ];
 
-    let favorites = JSON.parse(localStorage.getItem('rehberFavs')) || [];
-
+    // 2. Harf Düzenleyici (Müdür kelimesindeki Ü harfini çözen kısım)
     function temizle(metin) {
-    if (!metin) return "";
-    return metin.toString()
-        .replace(/İ/g, "i")
-        .replace(/ı/g, "i")
-        .toLowerCase()
-        .replace(/ü/g, "u")
-        .replace(/ö/g, "o")
-        .replace(/ş/g, "s")
-        .replace(/ğ/g, "g")
-        .replace(/ç/g, "c")
-        .trim();
-} // İŞTE EKSİK OLAN KAPATMA PARANTEZİ BUYDU
+        if (!metin) return "";
+        return metin.toString()
+            .replace(/İ/g, "i").replace(/ı/g, "i")
+            .replace(/Ü/g, "u").replace(/ü/g, "u")
+            .replace(/Ö/g, "o").replace(/ö/g, "o")
+            .replace(/Ş/g, "s").replace(/ş/g, "s")
+            .replace(/Ğ/g, "g").replace(/ğ/g, "g")
+            .replace(/Ç/g, "c").replace(/ç/g, "c")
+            .toLowerCase().trim();
+    }
 
-// 1. İsimleri ekrana dizen fonksiyon
-function tabloyuDoldur(liste) {
-    const govde = document.getElementById('tableBody');
-    govde.innerHTML = ""; 
-    
-    liste.forEach(kisi => {
-        govde.innerHTML += `
-            <tr>
-                <td>⭐</td>
-                <td class="dahili-cell">${kisi.no}</td>
-                <td>${kisi.ad}</td>
-                <td>${kisi.birim}</td>
-                <td class="hide-mobile">${kisi.unvan}</td>
-                <td class="hide-mobile">${kisi.konum ? `<span class="badge-konum">${kisi.konum}</span>` : ''}</td>
-            </tr>`;
-    });
-    document.getElementById('count').innerText = liste.length;
-}
+    // 3. Tabloyu Dolduran İşçi
+    function tabloyuDoldur(liste) {
+        const govde = document.getElementById('tableBody');
+        const sayac = document.getElementById('count');
+        govde.innerHTML = ""; 
+        
+        liste.forEach(kisi => {
+            govde.innerHTML += `
+                <tr>
+                    <td>⭐</td>
+                    <td class="dahili-cell">${kisi.no}</td>
+                    <td>${kisi.ad}</td>
+                    <td>${kisi.birim}</td>
+                    <td class="hide-mobile">${kisi.unvan}</td>
+                    <td class="hide-mobile">${kisi.konum ? `<span class="badge-konum">${kisi.konum}</span>` : ''}</td>
+                </tr>`;
+        });
+        sayac.innerText = liste.length;
+    }
 
-// 2. Arama kutusunu aktif et (KESİN ÇÖZÜM)
-document.getElementById('searchInput').oninput = function(e) {
-    const aranan = temizle(e.target.value); // Senin yazdığını "mudur" yapar
-    
-    const sonuc = rehberData.filter(k => {
-        // Her sütunu tek tek temizleyerek kontrol ediyoruz
-        const adCheck = temizle(k.ad).includes(aranan);
-        const birimCheck = temizle(k.birim).includes(aranan);
-        const unvanCheck = temizle(k.unvan).includes(aranan); // Ünvanı "mudur" yapar ve bakar
-        const noCheck = k.no.toString().includes(aranan);
+    // 4. Arama Motoru (Ünvanlara da bakıyor)
+    document.getElementById('searchInput').oninput = function(e) {
+        const aranan = temizle(e.target.value);
+        const sonuc = rehberData.filter(k => 
+            temizle(k.ad).includes(aranan) || 
+            temizle(k.birim).includes(aranan) || 
+            temizle(k.unvan).includes(aranan) || 
+            k.no.includes(aranan)
+        );
+        tabloyuDoldur(sonuc);
+    };
 
-        return adCheck || birimCheck || unvanCheck || noCheck;
-    });
-    
-    tabloyuDoldur(sonuc);
-};
-
-// 3. Sayfa ilk açıldığında listeyi bas
-tabloyuDoldur(rehberData);
-
+    // 5. BAŞLAT (Sayfa açılınca listeyi getir)
+    tabloyuDoldur(rehberData);
 </script>
-</body>
-</html>
