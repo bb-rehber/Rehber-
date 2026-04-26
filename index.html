@@ -66,13 +66,50 @@
     function temizle(metin) {
     if (!metin) return "";
     return metin.toString()
-        .replace(/İ/g, "i") // Büyük İ'yi i yap
-        .replace(/ı/g, "i") // ı'yı i yap
-        .toLowerCase()      // Hepsini küçük harf yap
-        .replace(/ü/g, "u") // ü'yü u yap
-        .replace(/ö/g, "o") // ö'yü o yap
-        .replace(/ş/g, "s") // ş'yi s yap
-        .replace(/ğ/g, "g") // ğ'yi g yap
-        .replace(/ç/g, "c") // ç'yi c yap
-        .trim();            // Boşlukları temizle
+        .replace(/İ/g, "i")
+        .replace(/ı/g, "i")
+        .toLowerCase()
+        .replace(/ü/g, "u")
+        .replace(/ö/g, "o")
+        .replace(/ş/g, "s")
+        .replace(/ğ/g, "g")
+        .replace(/ç/g, "c")
+        .trim();
+} // İŞTE EKSİK OLAN KAPATMA PARANTEZİ BUYDU
+
+// 1. İsimleri ekrana dizen fonksiyon
+function tabloyuDoldur(liste) {
+    const govde = document.getElementById('tableBody');
+    govde.innerHTML = ""; 
+    
+    liste.forEach(kisi => {
+        govde.innerHTML += `
+            <tr>
+                <td>⭐</td>
+                <td class="dahili-cell">${kisi.no}</td>
+                <td>${kisi.ad}</td>
+                <td>${kisi.birim}</td>
+                <td class="hide-mobile">${kisi.unvan}</td>
+                <td class="hide-mobile">${kisi.konum ? `<span class="badge-konum">${kisi.konum}</span>` : ''}</td>
+            </tr>`;
+    });
+    document.getElementById('count').innerText = liste.length;
 }
+
+// 2. Arama kutusunu aktif et
+document.getElementById('searchInput').oninput = function(e) {
+    const aranan = temizle(e.target.value);
+    const sonuc = rehberData.filter(k => 
+        temizle(k.ad).includes(aranan) || 
+        temizle(k.birim).includes(aranan) || 
+        k.no.includes(aranan)
+    );
+    tabloyuDoldur(sonuc);
+};
+
+// 3. Sayfa açılır açılmaz listeyi getir
+tabloyuDoldur(rehberData);
+
+</script>
+</body>
+</html>
