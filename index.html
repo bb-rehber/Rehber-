@@ -19,27 +19,18 @@
         .titles p { margin: 0; font-size: 11px; color: #666; font-weight: bold; }
         .search-input { width: 350px; padding: 12px 25px; border: 2px solid #ddd; border-radius: 25px; outline: none; transition: 0.3s; font-size: 15px; }
         .search-input:focus { border-color: var(--bagcilar-mavi); box-shadow: 0 0 8px rgba(0,85,150,0.2); }
-        
         .content { padding: 20px; }
         .info-bar { margin-bottom: 10px; font-size: 13px; color: #777; font-weight: bold; }
         .table-container { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
         table { width: 100%; border-collapse: collapse; }
         thead { background-color: var(--bagcilar-mavi); color: white; }
         th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
+        
+        /* MÜDÜR RENKLENDİRME */
+        .mudur-satir { background-color: #eef6ff !important; font-weight: 600; }
+        .mudur-satir td { color: #004085; }
+        
         tr:hover { background-color: #f1f5f9; }
-
-        /* MÜDÜR SATIRI ÖZEL STİLİ */
-        .mudur-satir { 
-            background-color: #eef6ff !important; /* Hafif mavi arka plan */
-            font-weight: 600; 
-        }
-        .mudur-satir td {
-            color: #004085; /* Yazı rengini biraz daha koyulaştırır */
-        }
-        .mudur-satir .dahili-cell {
-            color: #d9534f; /* Müdürlerin dahili numarasını kırmızı yaparak daha da belirginleştirir */
-        }
-
         .star { cursor: pointer; color: #ccc; font-size: 22px; user-select: none; }
         .star.active { color: #f1c40f; } 
         tr.is-favorite { background-color: #fffdf0 !important; }
@@ -58,11 +49,11 @@
             <p>BİLGİ İŞLEM MÜDÜRLÜĞÜ | KURUMSAL REHBER</p>
         </div>
     </div>
-    <input type="text" id="searchInput" class="search-input" placeholder="İsim, birim, dahili veya konum ara...">
+    <input type="text" id="searchInput" class="search-input" placeholder="Herhangi bir şey ara...">
 </header>
 
 <div class="content">
-    <div class="info-bar">Toplam <span id="count">0</span> kayıt listeleniyor.</div>
+    <div class="info-bar">Görüntülenen Kayıt: <span id="count">0</span></div>
     <div class="table-container">
         <table>
             <thead>
@@ -71,4 +62,105 @@
                     <th>DAHİLİ</th>
                     <th>AD SOYAD</th>
                     <th>BİRİM</th>
-                    <th>Ü
+                    <th>ÜNVAN</th>
+                    <th class="hide-mobile">KONUM</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // VERİLER
+    const rehberData = [
+        {no: "152", ad: "NURİ ÇAKAL", birim: "KENTSEL TASARIM MÜDÜRLÜĞÜ", unvan: "MÜDÜR", konum: "ANA BİNA"},
+        {no: "122", ad: "GÜLDANE ÖLMEZ", birim: "BİLGİ İŞLEM MÜDÜRLÜĞÜ", unvan: "OPERATÖR", konum: "ÇAĞRI MERKEZİ"},
+        {no: "106", ad: "RAKİME ÇİFTÇİ", birim: "TEFTİŞ KURULU MÜDÜRLÜĞÜ", unvan: "MÜFETTİŞ", konum: "EK HİZMET"},
+        {no: "107", ad: "MAHSUN İYİSAN", birim: "ULAŞIM HİZMETLERİ MÜDÜRLÜĞÜ", unvan: "PERSONEL", konum: "ŞANTİYE"},
+        {no: "111", ad: "EYÜP YILDIZ", birim: "ÖZEL KALEM MÜDÜRLÜĞÜ", unvan: "DANIŞMAN", konum: "BAŞKANLIK"}
+    ];
+
+    let favoriListesi = JSON.parse(localStorage.getItem("bagcilar_favoriler")) || [];
+
+    function temizle(text) {
+        if (!text) return "";
+        return text.toString()
+            .replace(/İ/g, 'i').replace(/I/g, 'ı')
+            .toLowerCase()
+            .replace(/ç/g, 'c').replace(/ğ/g, 'g').replace(/ö/g, 'o')
+            .replace(/ş/g, 's').replace(/ü/g, 'u').replace(/ı/g, 'i')
+            .trim();
+    }
+
+    function tabloyuGoster(liste) {
+        const tBody = document.getElementById("tableBody");
+        const countSpan = document.getElementById("count");
+        if (!tBody) return;
+
+        let html = "";
+        
+        // Sıralama: Önce favoriler, sonra isim
+        const sirali = [...liste].sort((a, b) => {
+            const aF = favoriListesi.includes(a.no) ? 1 : 0;
+            const bF = favoriListesi.includes(b.no) ? 1 : 0;
+            if (aF !== bF) return bF - aF;
+            return a.ad.localeCompare(b.ad, 'tr');
+        });
+
+        sirali.forEach(k => {
+            const isF = favoriListesi.includes(k.no);
+            const isMudur = temizle(k.unvan).includes("mudur");
+            
+            const satirClass = `
+                ${isF ? 'is-favorite' : ''} 
+                ${isMudur ? 'mudur-satir' : ''}
+            `.trim();
+
+            html += `
+                <tr class="${satirClass}">
+                    <td style="text-align:center;">
+                        <span class="star ${isF ? 'active' : ''}" onclick="favoriToggle('${k.no}')">${isF ? '★' : '☆'}</span>
+                    </td>
+                    <td class="dahili-cell">${k.no}</td>
+                    <td style="font-weight: bold;">${k.ad}</td>
+                    <td>${k.birim}</td>
+                    <td>${k.unvan}</td>
+                    <td class="hide-mobile">${k.konum ? `<span class="badge-konum">${k.konum}</span>` : '-'}</td>
+                </tr>`;
+        });
+
+        tBody.innerHTML = html;
+        countSpan.innerText = sirali.length;
+    }
+
+    function favoriToggle(no) {
+        favoriListesi = favoriListesi.includes(no) ? favoriListesi.filter(i => i !== no) : [...favoriListesi, no];
+        localStorage.setItem("bagcilar_favoriler", JSON.stringify(favoriListesi));
+        filtrele(); 
+    }
+
+    function filtrele() {
+        const input = document.getElementById("searchInput");
+        const aranan = temizle(input.value);
+        
+        const sonuclar = rehberData.filter(item => {
+            return temizle(item.ad).includes(aranan) || 
+                   temizle(item.birim).includes(aranan) || 
+                   temizle(item.unvan).includes(aranan) || 
+                   temizle(item.no).includes(aranan) || 
+                   temizle(item.konum || "").includes(aranan);
+        });
+        
+        tabloyuGoster(sonuclar);
+    }
+
+    // Input dinleyiciyi bağla
+    document.getElementById("searchInput").addEventListener("input", filtrele);
+
+    // DİREKT ÇALIŞTIR (Hiçbir şarta bağlamadan)
+    tabloyuGoster(rehberData);
+
+</script>
+</body>
+</html>
