@@ -33,4 +33,55 @@
         th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
         tr:hover { background-color: #f1f5f9; }
 
-        .star { cursor: pointer; color: #ccc; font-size: 20px; transition: 0.2s
+        .star { cursor: pointer; color: #ccc; font-size: 20px; transition: 0.2s; user-select: none; }
+        .star.active { color: #f1c40f; } 
+        tr.is-favorite { background-color: #fffdf0 !important; }
+
+        .dahili-cell { font-weight: 700; color: var(--bagcilar-mavi); }
+        .badge-konum { background: #fff3cd; color: #856404; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+        
+        @media (max-width: 768px) { 
+            header { flex-direction: column; gap: 10px; text-align: center; } 
+            .hide-mobile { display: none; } 
+            .search-input { width: 100%; } 
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="brand">
+        <img src="https://www.bagcilar.bel.tr/assets/img/logo.png" style="height: 50px;">
+        <div class="titles">
+            <h1>BAĞCILAR BELEDİYESİ</h1>
+            <p>BİLGİ İŞLEM MÜDÜRLÜĞÜ | KURUMSAL REHBER</p>
+        </div>
+    </div>
+    <input type="text" id="searchInput" class="search-input" placeholder="İsim, birim veya unvan ara...">
+</header>
+
+<div class="content">
+    <div class="info-bar">Görüntülenen Kayıt: <strong id="count">0</strong></div>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 40px; text-align: center;">⭐</th>
+                    <th>Dahili</th>
+                    <th>Ad Soyad</th>
+                    <th>Birim</th>
+                    <th class="hide-mobile">Ünvan</th>
+                    <th class="hide-mobile">Konum</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // 1. Veri Listesi (Buraya kendi listenin tamamını ekleyebilirsin)
+    const rehberData = [
+        {no: "106", ad: "RAKİME ÇİFTÇİ", birim: "TEFTİŞ KURULU MÜDÜRLÜĞÜ", unvan: "MÜFETTİŞ", konum: ""},
+        {no: "107", ad: "MAHSUN İYİSAN", birim: "ULAŞIM HİZMETLERİ MÜDÜRLÜĞÜ", unvan: "PERSONEL", konum: ""},
+        {no: "122", ad: "GÜLDANE ÖLMEZ", birim: "BİLGİ İŞLEM MÜDÜRLÜĞÜ", unvan: "OPERATÖR", konum: "ÇAĞRI MERKEZİ"},
