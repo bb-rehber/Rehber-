@@ -8,43 +8,30 @@
     <style>
         :root { --bagcilar-mavi: #005596; --bagcilar-gri: #f8f9fa; }
         body { font-family: 'Roboto', sans-serif; background-color: var(--bagcilar-gri); margin: 0; padding: 0; }
-        
         header { 
             background-color: white; padding: 10px 30px; display: flex; 
             justify-content: space-between; align-items: center; 
             border-bottom: 3px solid var(--bagcilar-mavi); 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
-            position: sticky; top: 0; z-index: 1000; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; 
         }
-
         .brand { display: flex; align-items: center; gap: 15px; }
         .titles h1 { margin: 0; font-size: 22px; color: var(--bagcilar-mavi); }
         .titles p { margin: 0; font-size: 11px; color: #666; font-weight: bold; }
-        
         .search-input { width: 300px; padding: 10px 20px; border: 2px solid #ddd; border-radius: 25px; outline: none; transition: 0.3s; }
         .search-input:focus { border-color: var(--bagcilar-mavi); box-shadow: 0 0 8px rgba(0,85,150,0.2); }
-        
         .content { padding: 20px; }
         .info-bar { margin-bottom: 10px; font-size: 13px; color: #777; }
         .table-container { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-        
         table { width: 100%; border-collapse: collapse; }
         thead { background-color: var(--bagcilar-mavi); color: white; }
         th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
         tr:hover { background-color: #f1f5f9; }
-
-        .star { cursor: pointer; color: #ccc; font-size: 20px; transition: 0.2s; user-select: none; }
+        .star { cursor: pointer; color: #ccc; font-size: 20px; user-select: none; }
         .star.active { color: #f1c40f; } 
         tr.is-favorite { background-color: #fffdf0 !important; }
-
         .dahili-cell { font-weight: 700; color: var(--bagcilar-mavi); }
         .badge-konum { background: #fff3cd; color: #856404; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
-        
-        @media (max-width: 768px) { 
-            header { flex-direction: column; gap: 10px; text-align: center; } 
-            .hide-mobile { display: none; } 
-            .search-input { width: 100%; } 
-        }
+        @media (max-width: 768px) { header { flex-direction: column; gap: 10px; text-align: center; } .hide-mobile { display: none; } .search-input { width: 100%; } }
     </style>
 </head>
 <body>
@@ -74,14 +61,84 @@
                     <th class="hide-mobile">Konum</th>
                 </tr>
             </thead>
-            <tbody id="tableBody"></tbody>
+            <tbody id="tableBody">
+                </tbody>
         </table>
     </div>
 </div>
 
 <script>
-    // 1. Veri Listesi (Buraya kendi listenin tamamını ekleyebilirsin)
+    // VERİLERİ BURAYA YAPIŞTIR
     const rehberData = [
+        {no: "152", ad: "NURİ ÇAKAL", birim: "KENTSEL TASARIM MÜDÜRLÜĞÜ", unvan: "MÜDÜR", konum: ""},
+        {no: "122", ad: "GÜLDANE ÖLMEZ", birim: "BİLGİ İŞLEM MÜDÜRLÜĞÜ", unvan: "OPERATÖR", konum: "ÇAĞRI MERKEZİ"},
         {no: "106", ad: "RAKİME ÇİFTÇİ", birim: "TEFTİŞ KURULU MÜDÜRLÜĞÜ", unvan: "MÜFETTİŞ", konum: ""},
         {no: "107", ad: "MAHSUN İYİSAN", birim: "ULAŞIM HİZMETLERİ MÜDÜRLÜĞÜ", unvan: "PERSONEL", konum: ""},
-        {no: "122", ad: "GÜLDANE ÖLMEZ", birim: "BİLGİ İŞLEM MÜDÜRLÜĞÜ", unvan: "OPERATÖR", konum: "ÇAĞRI MERKEZİ"},
+        {no: "111", ad: "EYÜP YILDIZ", birim: "ÖZEL KALEM MÜDÜRLÜĞÜ", unvan: "DANIŞMAN", konum: ""}
+    ];
+
+    let favoriListesi = JSON.parse(localStorage.getItem("bagcilar_favoriler")) || [];
+
+    // MÜDÜR sorununu çözen fonksiyon
+    function temizle(metin) {
+        if (!metin) return "";
+        return metin.toString()
+            .replace(/İ/g, 'i').replace(/I/g, 'ı').toLowerCase()
+            .replace(/ç/g, 'c').replace(/ğ/g, 'g').replace(/ö/g, 'o')
+            .replace(/ş/g, 's').replace(/ü/g, 'u').replace(/ı/g, 'i')
+            .trim();
+    }
+
+    function tabloyuGoster(liste) {
+        const tBody = document.getElementById("tableBody");
+        const count = document.getElementById("count");
+        if (!tBody) return;
+
+        let html = "";
+        
+        const sirali = [...liste].sort((a, b) => {
+            const aF = favoriListesi.includes(a.no) ? 1 : 0;
+            const bF = favoriListesi.includes(b.no) ? 1 : 0;
+            if (aF !== bF) return bF - aF;
+            return a.ad.localeCompare(b.ad, 'tr');
+        });
+
+        sirali.forEach(k => {
+            const isF = favoriListesi.includes(k.no);
+            html += `
+                <tr class="${isF ? 'is-favorite' : ''}">
+                    <td style="text-align:center;"><span class="star ${isF ? 'active' : ''}" onclick="favoriToggle('${k.no}')">${isF ? '★' : '☆'}</span></td>
+                    <td class="dahili-cell">${k.no}</td>
+                    <td>${k.ad}</td>
+                    <td>${k.birim}</td>
+                    <td class="hide-mobile">${k.unvan}</td>
+                    <td class="hide-mobile">${k.konum ? `<span class="badge-konum">${k.konum}</span>` : ''}</td>
+                </tr>`;
+        });
+
+        tBody.innerHTML = html;
+        count.textContent = sirali.length;
+    }
+
+    function favoriToggle(no) {
+        favoriListesi = favoriListesi.includes(no) ? favoriListesi.filter(i => i !== no) : [...favoriListesi, no];
+        localStorage.setItem("bagcilar_favoriler", JSON.stringify(favoriListesi));
+        filtrele();
+    }
+
+    function filtrele() {
+        const val = temizle(document.getElementById("searchInput").value);
+        const res = rehberData.filter(k => 
+            temizle(k.ad).includes(val) || 
+            temizle(k.birim).includes(val) || 
+            temizle(k.unvan).includes(val) || 
+            k.no.includes(val)
+        );
+        tabloyuGoster(res);
+    }
+
+    document.getElementById("searchInput").addEventListener("input", filtrele);
+    window.onload = () => tabloyuGoster(rehberData);
+</script>
+</body>
+</html>
