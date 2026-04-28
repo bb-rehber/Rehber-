@@ -67,68 +67,13 @@
 </div>
 
 <script>
-    // Nuri Bey'e noktayı koyduk, diğerlerini de ekledik
+    // Noktayı kaldırdık, tertemiz yaptık
     const rehberData = [
-        {no: "152", ad: "NURİ ÇAKAL", birim: "KENTSEL TASARIM MÜDÜRLÜĞÜ", unvan: "MÜDÜR.", konum: "ANA BİNA"},
+        {no: "152", ad: "NURİ ÇAKAL", birim: "KENTSEL TASARIM MÜDÜRLÜĞÜ", unvan: "MÜDÜR", konum: "ANA BİNA"},
         {no: "122", ad: "GÜLDANE ÖLMEZ", birim: "BİLGİ İŞLEM MÜDÜRLÜĞÜ", unvan: "OPERATÖR", konum: "ÇAĞRI MERKEZİ"},
         {no: "106", ad: "RAKİME ÇİFTÇİ", birim: "TEFTİŞ KURULU MÜDÜRLÜĞÜ", unvan: "MÜFETTİŞ", konum: "EK HİZMET"},
         {no: "107", ad: "MAHSUN İYİSAN", birim: "ULAŞIM HİZMETLERİ MÜDÜRLÜĞÜ", unvan: "PERSONEL", konum: "ŞANTİYE"},
         {no: "111", ad: "EYÜP YILDIZ", birim: "ÖZEL KALEM MÜDÜRLÜĞÜ", unvan: "DANIŞMAN", konum: "BAŞKANLIK"}
     ];
 
-    let favoriListesi = JSON.parse(localStorage.getItem("bagcilar_favoriler")) || [];
-
-    // EN GARANTİ TEMİZLEME: Tüm Türkçe karakterleri ve noktaları uçurur
-    function sadeleştir(metin) {
-        if (!metin) return "";
-        let str = metin.toString().toLowerCase();
-        str = str.replace(/ı/g, 'i').replace(/İ/g, 'i')
-                 .replace(/ş/g, 's').replace(/ğ/g, 'g')
-                 .replace(/ü/g, 'u').replace(/ö/g, 'o')
-                 .replace(/ç/g, 'c')
-                 .replace(/\./g, '') // Noktayı siler
-                 .replace(/\s/g, ''); // Boşlukları siler (Arama kolaylığı için)
-        return str;
-    }
-
-    function tabloyuGoster(liste) {
-        const tBody = document.getElementById("tableBody");
-        const count = document.getElementById("count");
-        if (!tBody) return;
-
-        const sirali = [...liste].sort((a, b) => {
-            const aF = favoriListesi.includes(a.no) ? 1 : 0;
-            const bF = favoriListesi.includes(b.no) ? 1 : 0;
-            if (aF !== bF) return bF - aF;
-            return a.ad.localeCompare(b.ad, 'tr');
-        });
-
-        let html = "";
-        sirali.forEach(k => {
-            const isF = favoriListesi.includes(k.no);
-            html += `
-                <tr class="${isF ? 'is-favorite' : ''}">
-                    <td style="text-align:center;">
-                        <span class="star ${isF ? 'active' : ''}" onclick="favoriToggle('${k.no}')">${isF ? '★' : '☆'}</span>
-                    </td>
-                    <td class="dahili-cell">${k.no}</td>
-                    <td style="font-weight: bold;">${k.ad}</td>
-                    <td>${k.birim}</td>
-                    <td>${k.unvan}</td>
-                    <td class="hide-mobile">${k.konum ? `<span class="badge-konum">${k.konum}</span>` : '-'}</td>
-                </tr>`;
-        });
-
-        tBody.innerHTML = html;
-        count.textContent = sirali.length;
-    }
-
-    function favoriToggle(no) {
-        favoriListesi = favoriListesi.includes(no) ? favoriListesi.filter(i => i !== no) : [...favoriListesi, no];
-        localStorage.setItem("bagcilar_favoriler", JSON.stringify(favoriListesi));
-        filtrele(); 
-    }
-
-    function filtrele() {
-        const aramaKutusu = document.getElementById("searchInput");
-        const ar
+    let favoriListesi = JSON.parse(localStorage
