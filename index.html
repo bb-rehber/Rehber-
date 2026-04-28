@@ -5,26 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bağcılar Belediyesi | Dijital Rehber</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-    <style>
-        :root { --bagcilar-mavi: #005596; --bagcilar-gri: #f8f9fa; }
-        body { font-family: 'Roboto', sans-serif; background-color: var(--bagcilar-gri); margin: 0; padding: 0; }
-        header { background-color: white; padding: 10px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--bagcilar-mavi); box-shadow: 0 4px 12px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; }
-        .brand { display: flex; align-items: center; gap: 15px; }
-        .titles h1 { margin: 0; font-size: 22px; color: var(--bagcilar-mavi); }
-        .titles p { margin: 0; font-size: 11px; color: #666; font-weight: bold; }
-        .search-input { width: 300px; padding: 10px 20px; border: 2px solid #ddd; border-radius: 25px; outline: none; transition: 0.3s; }
-        .search-input:focus { border-color: var(--bagcilar-mavi); box-shadow: 0 0 8px rgba(0,85,150,0.2); }
-        .content { padding: 20px; }
-        .info-bar { margin-bottom: 10px; font-size: 13px; color: #777; }
-        .table-container { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-        table { width: 100%; border-collapse: collapse; }
-        thead { background-color: var(--bagcilar-mavi); color: white; }
-        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
-        tr:hover { background-color: #f1f5f9; }
-        .dahili-cell { font-weight: 700; color: var(--bagcilar-mavi); }
-        .badge-konum { background: #fff3cd; color: #856404; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
-        @media (max-width: 768px) { header { flex-direction: column; } .hide-mobile { display: none; } .search-input { width: 100%; } }
-    </style>
+    /* Favori yıldızı: Boş hali gri, dolu hali sarı */
+.star { cursor: pointer; color: #ccc; font-size: 20px; transition: 0.2s; user-select: none; }
+.star.active { color: #f1c40f; } 
+
+/* Favori seçilen satırı hafifçe renklendirir, diğerlerinden ayırır */
+tr.is-favorite { background-color: #fffdf0 !important; font-weight: 500; }
 </head>
 <body>
 
