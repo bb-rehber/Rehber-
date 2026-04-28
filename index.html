@@ -44,7 +44,7 @@
             <p>BİLGİ İŞLEM MÜDÜRLÜĞÜ | KURUMSAL REHBER</p>
         </div>
     </div>
-    <input type="text" id="searchInput" class="search-input" placeholder="İsim, birim veya unvan ara...">
+    <input type="text" id="searchInput" class="search-input" placeholder="Herhangi bir şey ara...">
 </header>
 
 <div class="content">
@@ -61,29 +61,31 @@
                     <th class="hide-mobile">Konum</th>
                 </tr>
             </thead>
-            <tbody id="tableBody">
-                </tbody>
+            <tbody id="tableBody"></tbody>
         </table>
     </div>
 </div>
 
 <script>
-    // VERİLERİ BURAYA YAPIŞTIR
     const rehberData = [
-        {no: "152", ad: "NURİ ÇAKAL", birim: "KENTSEL TASARIM MÜDÜRLÜĞÜ", unvan: "MÜDÜR", konum: ""},
+        {no: "152", ad: "NURİ ÇAKAL", birim: "KENTSEL TASARIM MÜDÜRLÜĞÜ", unvan: "MÜDÜR", konum: "ANA BİNA"},
         {no: "122", ad: "GÜLDANE ÖLMEZ", birim: "BİLGİ İŞLEM MÜDÜRLÜĞÜ", unvan: "OPERATÖR", konum: "ÇAĞRI MERKEZİ"},
-        {no: "106", ad: "RAKİME ÇİFTÇİ", birim: "TEFTİŞ KURULU MÜDÜRLÜĞÜ", unvan: "MÜFETTİŞ", konum: ""},
-        {no: "107", ad: "MAHSUN İYİSAN", birim: "ULAŞIM HİZMETLERİ MÜDÜRLÜĞÜ", unvan: "PERSONEL", konum: ""},
-        {no: "111", ad: "EYÜP YILDIZ", birim: "ÖZEL KALEM MÜDÜRLÜĞÜ", unvan: "DANIŞMAN", konum: ""}
+        {no: "106", ad: "RAKİME ÇİFTÇİ", birim: "TEFTİŞ KURULU MÜDÜRLÜĞÜ", unvan: "MÜFETTİŞ", konum: "EK HİZMET"},
+        {no: "107", ad: "MAHSUN İYİSAN", birim: "ULAŞIM HİZMETLERİ MÜDÜRLÜĞÜ", unvan: "PERSONEL", konum: "ŞANTİYE"},
+        {no: "111", ad: "EYÜP YILDIZ", birim: "ÖZEL KALEM MÜDÜRLÜĞÜ", unvan: "DANIŞMAN", konum: "BAŞKANLIK"}
     ];
 
     let favoriListesi = JSON.parse(localStorage.getItem("bagcilar_favoriler")) || [];
 
-    // MÜDÜR sorununu çözen fonksiyon
-    function temizle(metin) {
+    // TÜM KARAKTERLERİ STANDARTLAŞTIRAN FONKSİYON (Müdür-mudur-MUDUR hepsini 'mudur' yapar)
+    function normalizeMetin(metin) {
         if (!metin) return "";
         return metin.toString()
-            .replace(/İ/g, 'i').replace(/I/g, 'ı').toLowerCase()
+            .normalize("NFD") // Aksanları ayırır
+            .replace(/[\u0300-\u036f]/g, "") // Aksanları siler
+            .replace(/İ/g, 'i')
+            .replace(/I/g, 'ı')
+            .toLowerCase()
             .replace(/ç/g, 'c').replace(/ğ/g, 'g').replace(/ö/g, 'o')
             .replace(/ş/g, 's').replace(/ü/g, 'u').replace(/ı/g, 'i')
             .trim();
@@ -95,7 +97,6 @@
         if (!tBody) return;
 
         let html = "";
-        
         const sirali = [...liste].sort((a, b) => {
             const aF = favoriListesi.includes(a.no) ? 1 : 0;
             const bF = favoriListesi.includes(b.no) ? 1 : 0;
@@ -126,14 +127,16 @@
         filtrele();
     }
 
+    // HER SÜTUNDA ARAMA YAPAN YENİ FİLTRE
     function filtrele() {
-        const val = temizle(document.getElementById("searchInput").value);
-        const res = rehberData.filter(k => 
-            temizle(k.ad).includes(val) || 
-            temizle(k.birim).includes(val) || 
-            temizle(k.unvan).includes(val) || 
-            k.no.includes(val)
-        );
+        const aranan = normalizeMetin(document.getElementById("searchInput").value);
+        
+        const res = rehberData.filter(k => {
+            // Tüm alanları tek bir metin gibi birleştirip arıyoruz
+            const tumSatir = normalizeMetin(k.no + k.ad + k.birim + k.unvan + (k.konum || ""));
+            return tumSatir.includes(aranan);
+        });
+        
         tabloyuGoster(res);
     }
 
