@@ -17,43 +17,43 @@
         .brand { display: flex; align-items: center; gap: 15px; }
         .titles h1 { margin: 0; font-size: 22px; color: var(--bagcilar-mavi); }
         .titles p { margin: 0; font-size: 11px; color: #666; font-weight: bold; }
-        .search-input { width: 300px; padding: 10px 20px; border: 2px solid #ddd; border-radius: 25px; outline: none; transition: 0.3s; }
+        .search-input { width: 350px; padding: 12px 25px; border: 2px solid #ddd; border-radius: 25px; outline: none; transition: 0.3s; font-size: 15px; }
         .search-input:focus { border-color: var(--bagcilar-mavi); box-shadow: 0 0 8px rgba(0,85,150,0.2); }
         .content { padding: 20px; }
-        .info-bar { margin-bottom: 10px; font-size: 13px; color: #777; }
+        .info-bar { margin-bottom: 10px; font-size: 13px; color: #777; font-weight: bold; }
         .table-container { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
         table { width: 100%; border-collapse: collapse; }
         thead { background-color: var(--bagcilar-mavi); color: white; }
         th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
         tr:hover { background-color: #f1f5f9; }
-        .star { cursor: pointer; color: #ccc; font-size: 20px; user-select: none; }
+        .star { cursor: pointer; color: #ccc; font-size: 22px; user-select: none; }
         .star.active { color: #f1c40f; } 
         tr.is-favorite { background-color: #fffdf0 !important; }
-        .dahili-cell { font-weight: 700; color: var(--bagcilar-mavi); }
-        .badge-konum { background: #fff3cd; color: #856404; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
-        @media (max-width: 768px) { header { flex-direction: column; gap: 10px; text-align: center; } .hide-mobile { display: none; } .search-input { width: 100%; } }
+        .dahili-cell { font-weight: 700; color: var(--bagcilar-mavi); font-size: 16px; }
+        .badge-konum { background: #e2f0fb; color: #005596; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; border: 1px solid #b6d4fe; }
+        @media (max-width: 768px) { header { flex-direction: column; gap: 10px; text-align: center; } .hide-mobile { display: none; } .search-input { width: 90%; } }
     </style>
 </head>
 <body>
 
 <header>
     <div class="brand">
-        <img src="https://www.bagcilar.bel.tr/assets/img/logo.png" style="height: 50px;">
+        <img src="https://www.bagcilar.bel.tr/assets/img/logo.png" style="height: 55px;">
         <div class="titles">
             <h1>BAĞCILAR BELEDİYESİ</h1>
-            <p>BİLGİ İŞLEM MÜDÜRLÜĞÜ | KURUMSAL REHBER</p>
+            <p>BİLGİ İŞLEM MÜDÜRLÜĞÜ | DİJİTAL REHBER</p>
         </div>
     </div>
-    <input type="text" id="searchInput" class="search-input" placeholder="Herhangi bir şey ara...">
+    <input type="text" id="searchInput" class="search-input" placeholder="İsim, birim, dahili veya konum yazın...">
 </header>
 
 <div class="content">
-    <div class="info-bar">Görüntülenen Kayıt: <strong id="count">0</strong></div>
+    <div class="info-bar">Toplam <span id="count">0</span> kayıt listeleniyor.</div>
     <div class="table-container">
         <table>
             <thead>
                 <tr>
-                    <th style="width: 40px; text-align: center;">⭐</th>
+                    <th style="width: 50px; text-align: center;">Favori</th>
                     <th>Dahili</th>
                     <th>Ad Soyad</th>
                     <th>Birim</th>
@@ -67,6 +67,7 @@
 </div>
 
 <script>
+    // ANA VERİ SETİ
     const rehberData = [
         {no: "152", ad: "NURİ ÇAKAL", birim: "KENTSEL TASARIM MÜDÜRLÜĞÜ", unvan: "MÜDÜR", konum: "ANA BİNA"},
         {no: "122", ad: "GÜLDANE ÖLMEZ", birim: "BİLGİ İŞLEM MÜDÜRLÜĞÜ", unvan: "OPERATÖR", konum: "ÇAĞRI MERKEZİ"},
@@ -77,14 +78,11 @@
 
     let favoriListesi = JSON.parse(localStorage.getItem("bagcilar_favoriler")) || [];
 
-    // TÜM KARAKTERLERİ STANDARTLAŞTIRAN FONKSİYON (Müdür-mudur-MUDUR hepsini 'mudur' yapar)
-    function normalizeMetin(metin) {
+    // TÜRKÇE KARAKTER VE BÜYÜK/KÜÇÜK HARF DUYARLILIĞINI ORTADAN KALDIRAN FONKSİYON
+    function temizle(metin) {
         if (!metin) return "";
         return metin.toString()
-            .normalize("NFD") // Aksanları ayırır
-            .replace(/[\u0300-\u036f]/g, "") // Aksanları siler
-            .replace(/İ/g, 'i')
-            .replace(/I/g, 'ı')
+            .replace(/İ/g, 'i').replace(/I/g, 'ı')
             .toLowerCase()
             .replace(/ç/g, 'c').replace(/ğ/g, 'g').replace(/ö/g, 'o')
             .replace(/ş/g, 's').replace(/ü/g, 'u').replace(/ı/g, 'i')
@@ -96,7 +94,7 @@
         const count = document.getElementById("count");
         if (!tBody) return;
 
-        let html = "";
+        // Önce favoriler, sonra isim sırası
         const sirali = [...liste].sort((a, b) => {
             const aF = favoriListesi.includes(a.no) ? 1 : 0;
             const bF = favoriListesi.includes(b.no) ? 1 : 0;
@@ -104,16 +102,19 @@
             return a.ad.localeCompare(b.ad, 'tr');
         });
 
+        let html = "";
         sirali.forEach(k => {
             const isF = favoriListesi.includes(k.no);
             html += `
                 <tr class="${isF ? 'is-favorite' : ''}">
-                    <td style="text-align:center;"><span class="star ${isF ? 'active' : ''}" onclick="favoriToggle('${k.no}')">${isF ? '★' : '☆'}</span></td>
+                    <td style="text-align:center;">
+                        <span class="star ${isF ? 'active' : ''}" onclick="favoriToggle('${k.no}')">${isF ? '★' : '☆'}</span>
+                    </td>
                     <td class="dahili-cell">${k.no}</td>
-                    <td>${k.ad}</td>
+                    <td style="font-weight: bold;">${k.ad}</td>
                     <td>${k.birim}</td>
                     <td class="hide-mobile">${k.unvan}</td>
-                    <td class="hide-mobile">${k.konum ? `<span class="badge-konum">${k.konum}</span>` : ''}</td>
+                    <td class="hide-mobile">${k.konum ? `<span class="badge-konum">${k.konum}</span>` : '-'}</td>
                 </tr>`;
         });
 
@@ -124,24 +125,34 @@
     function favoriToggle(no) {
         favoriListesi = favoriListesi.includes(no) ? favoriListesi.filter(i => i !== no) : [...favoriListesi, no];
         localStorage.setItem("bagcilar_favoriler", JSON.stringify(favoriListesi));
-        filtrele();
+        filtrele(); 
     }
 
-    // HER SÜTUNDA ARAMA YAPAN YENİ FİLTRE
+    // HER ŞEYİ ARAYAN ASIL FONKSİYON
     function filtrele() {
-        const aranan = normalizeMetin(document.getElementById("searchInput").value);
+        const aranan = temizle(document.getElementById("searchInput").value);
         
-        const res = rehberData.filter(k => {
-            // Tüm alanları tek bir metin gibi birleştirip arıyoruz
-            const tumSatir = normalizeMetin(k.no + k.ad + k.birim + k.unvan + (k.konum || ""));
-            return tumSatir.includes(aranan);
+        const sonuclar = rehberData.filter(k => {
+            // Her sütunu ayrı ayrı temizleyip kontrol ediyoruz (Arama garantisi)
+            return temizle(k.no).includes(aranan) || 
+                   temizle(k.ad).includes(aranan) || 
+                   temizle(k.birim).includes(aranan) || 
+                   temizle(k.unvan).includes(aranan) || 
+                   temizle(k.konum || "").includes(aranan);
         });
         
-        tabloyuGoster(res);
+        tabloyuGoster(sonuclar);
     }
 
+    // Input'a yazı yazıldığında filtrele
     document.getElementById("searchInput").addEventListener("input", filtrele);
-    window.onload = () => tabloyuGoster(rehberData);
+
+    // Sayfa açıldığında tabloyu bas
+    window.onload = () => {
+        tabloyuGoster(rehberData);
+        document.getElementById("searchInput").focus();
+    };
 </script>
+
 </body>
 </html>
