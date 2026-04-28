@@ -44,7 +44,7 @@
             <p>BİLGİ İŞLEM MÜDÜRLÜĞÜ | DİJİTAL REHBER</p>
         </div>
     </div>
-    <input type="text" id="searchInput" class="search-input" placeholder="İsim, birim veya ünvan ara...">
+    <input type="text" id="searchInput" class="search-input" placeholder="İsim, birim, unvan veya konum ara...">
 </header>
 
 <div class="content">
@@ -53,12 +53,12 @@
         <table>
             <thead>
                 <tr>
-                    <th style="width: 50px; text-align: center;">Favori</th>
-                    <th>Dahili</th>
-                    <th>Ad Soyad</th>
-                    <th>Birim</th>
-                    <th class="hide-mobile">Ünvan</th>
-                    <th class="hide-mobile">Konum</th>
+                    <th style="width: 50px; text-align: center;">FAV</th>
+                    <th>DAHİLİ</th>
+                    <th>AD SOYAD</th>
+                    <th>BİRİM</th>
+                    <th class="hide-mobile">ÜNVAN</th>
+                    <th class="hide-mobile">KONUM</th>
                 </tr>
             </thead>
             <tbody id="tableBody"></tbody>
@@ -67,7 +67,7 @@
 </div>
 
 <script>
-    // İsteğin üzerine Nuri Bey'e noktayı koyduk :)
+    // Nuri Bey'e noktayı koyduk, diğerlerini de ekledik
     const rehberData = [
         {no: "152", ad: "NURİ ÇAKAL", birim: "KENTSEL TASARIM MÜDÜRLÜĞÜ", unvan: "MÜDÜR.", konum: "ANA BİNA"},
         {no: "122", ad: "GÜLDANE ÖLMEZ", birim: "BİLGİ İŞLEM MÜDÜRLÜĞÜ", unvan: "OPERATÖR", konum: "ÇAĞRI MERKEZİ"},
@@ -78,16 +78,17 @@
 
     let favoriListesi = JSON.parse(localStorage.getItem("bagcilar_favoriler")) || [];
 
-    // Hem harfleri hem noktaları temizleyen ultra filtre
-    function temizle(metin) {
+    // EN GARANTİ TEMİZLEME: Tüm Türkçe karakterleri ve noktaları uçurur
+    function sadeleştir(metin) {
         if (!metin) return "";
-        return metin.toString()
-            .replace(/İ/g, 'i').replace(/I/g, 'ı')
-            .toLowerCase()
-            .replace(/ç/g, 'c').replace(/ğ/g, 'g').replace(/ö/g, 'o')
-            .replace(/ş/g, 's').replace(/ü/g, 'u').replace(/ı/g, 'i')
-            .replace(/\./g, '') // Noktayı aramada yok sayar (Hata payını siler)
-            .trim();
+        let str = metin.toString().toLowerCase();
+        str = str.replace(/ı/g, 'i').replace(/İ/g, 'i')
+                 .replace(/ş/g, 's').replace(/ğ/g, 'g')
+                 .replace(/ü/g, 'u').replace(/ö/g, 'o')
+                 .replace(/ç/g, 'c')
+                 .replace(/\./g, '') // Noktayı siler
+                 .replace(/\s/g, ''); // Boşlukları siler (Arama kolaylığı için)
+        return str;
     }
 
     function tabloyuGoster(liste) {
@@ -129,27 +130,5 @@
     }
 
     function filtrele() {
-        const aranan = temizle(document.getElementById("searchInput").value);
-        
-        const sonuclar = rehberData.filter(k => {
-            // Sütunların her birini temizleyip arıyoruz
-            return temizle(k.no).includes(aranan) || 
-                   temizle(k.ad).includes(aranan) || 
-                   temizle(k.birim).includes(aranan) || 
-                   temizle(k.unvan).includes(aranan) || 
-                   temizle(k.konum || "").includes(aranan);
-        });
-        
-        tabloyuGoster(sonuclar);
-    }
-
-    document.getElementById("searchInput").addEventListener("input", filtrele);
-
-    window.onload = () => {
-        tabloyuGoster(rehberData);
-        document.getElementById("searchInput").focus();
-    };
-</script>
-
-</body>
-</html>
+        const aramaKutusu = document.getElementById("searchInput");
+        const ar
