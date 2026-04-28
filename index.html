@@ -44,7 +44,7 @@
             <p>BİLGİ İŞLEM MÜDÜRLÜĞÜ | DİJİTAL REHBER</p>
         </div>
     </div>
-    <input type="text" id="searchInput" class="search-input" placeholder="İsim, birim, dahili veya konum yazın...">
+    <input type="text" id="searchInput" class="search-input" placeholder="İsim, birim veya ünvan ara...">
 </header>
 
 <div class="content">
@@ -67,9 +67,9 @@
 </div>
 
 <script>
-    // ANA VERİ SETİ
+    // İsteğin üzerine Nuri Bey'e noktayı koyduk :)
     const rehberData = [
-        {no: "152", ad: "NURİ ÇAKAL", birim: "KENTSEL TASARIM MÜDÜRLÜĞÜ", unvan: "MÜDÜR", konum: "ANA BİNA"},
+        {no: "152", ad: "NURİ ÇAKAL", birim: "KENTSEL TASARIM MÜDÜRLÜĞÜ", unvan: "MÜDÜR.", konum: "ANA BİNA"},
         {no: "122", ad: "GÜLDANE ÖLMEZ", birim: "BİLGİ İŞLEM MÜDÜRLÜĞÜ", unvan: "OPERATÖR", konum: "ÇAĞRI MERKEZİ"},
         {no: "106", ad: "RAKİME ÇİFTÇİ", birim: "TEFTİŞ KURULU MÜDÜRLÜĞÜ", unvan: "MÜFETTİŞ", konum: "EK HİZMET"},
         {no: "107", ad: "MAHSUN İYİSAN", birim: "ULAŞIM HİZMETLERİ MÜDÜRLÜĞÜ", unvan: "PERSONEL", konum: "ŞANTİYE"},
@@ -78,7 +78,7 @@
 
     let favoriListesi = JSON.parse(localStorage.getItem("bagcilar_favoriler")) || [];
 
-    // TÜRKÇE KARAKTER VE BÜYÜK/KÜÇÜK HARF DUYARLILIĞINI ORTADAN KALDIRAN FONKSİYON
+    // Hem harfleri hem noktaları temizleyen ultra filtre
     function temizle(metin) {
         if (!metin) return "";
         return metin.toString()
@@ -86,6 +86,7 @@
             .toLowerCase()
             .replace(/ç/g, 'c').replace(/ğ/g, 'g').replace(/ö/g, 'o')
             .replace(/ş/g, 's').replace(/ü/g, 'u').replace(/ı/g, 'i')
+            .replace(/\./g, '') // Noktayı aramada yok sayar (Hata payını siler)
             .trim();
     }
 
@@ -94,7 +95,6 @@
         const count = document.getElementById("count");
         if (!tBody) return;
 
-        // Önce favoriler, sonra isim sırası
         const sirali = [...liste].sort((a, b) => {
             const aF = favoriListesi.includes(a.no) ? 1 : 0;
             const bF = favoriListesi.includes(b.no) ? 1 : 0;
@@ -113,7 +113,7 @@
                     <td class="dahili-cell">${k.no}</td>
                     <td style="font-weight: bold;">${k.ad}</td>
                     <td>${k.birim}</td>
-                    <td class="hide-mobile">${k.unvan}</td>
+                    <td>${k.unvan}</td>
                     <td class="hide-mobile">${k.konum ? `<span class="badge-konum">${k.konum}</span>` : '-'}</td>
                 </tr>`;
         });
@@ -128,12 +128,11 @@
         filtrele(); 
     }
 
-    // HER ŞEYİ ARAYAN ASIL FONKSİYON
     function filtrele() {
         const aranan = temizle(document.getElementById("searchInput").value);
         
         const sonuclar = rehberData.filter(k => {
-            // Her sütunu ayrı ayrı temizleyip kontrol ediyoruz (Arama garantisi)
+            // Sütunların her birini temizleyip arıyoruz
             return temizle(k.no).includes(aranan) || 
                    temizle(k.ad).includes(aranan) || 
                    temizle(k.birim).includes(aranan) || 
@@ -144,10 +143,8 @@
         tabloyuGoster(sonuclar);
     }
 
-    // Input'a yazı yazıldığında filtrele
     document.getElementById("searchInput").addEventListener("input", filtrele);
 
-    // Sayfa açıldığında tabloyu bas
     window.onload = () => {
         tabloyuGoster(rehberData);
         document.getElementById("searchInput").focus();
