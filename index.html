@@ -80,10 +80,183 @@
     </div>
 </div>
 
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bağcılar Belediyesi | Dijital Rehber</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --bagcilar-mavi: #005596; --bagcilar-gri: #f8f9fa; }
+        body { font-family: 'Roboto', sans-serif; background-color: var(--bagcilar-gri); margin: 0; padding: 0; }
+        
+        header { 
+            background-color: white; padding: 10px 30px; display: flex; 
+            justify-content: space-between; align-items: center; 
+            border-bottom: 3px solid var(--bagcilar-mavi); 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
+            position: sticky; top: 0; z-index: 1000; 
+        }
+
+        .brand { display: flex; align-items: center; gap: 15px; }
+        .titles h1 { margin: 0; font-size: 22px; color: var(--bagcilar-mavi); }
+        .titles p { margin: 0; font-size: 11px; color: #666; font-weight: bold; }
+        
+        .search-input { width: 300px; padding: 10px 20px; border: 2px solid #ddd; border-radius: 25px; outline: none; transition: 0.3s; }
+        .search-input:focus { border-color: var(--bagcilar-mavi); box-shadow: 0 0 8px rgba(0,85,150,0.2); }
+        
+        .content { padding: 20px; }
+        .info-bar { margin-bottom: 10px; font-size: 13px; color: #777; }
+        .table-container { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        
+        table { width: 100%; border-collapse: collapse; }
+        thead { background-color: var(--bagcilar-mavi); color: white; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
+        tr:hover { background-color: #f1f5f9; }
+
+        /* Favori Yıldız Stilleri */
+        .star { cursor: pointer; color: #ccc; font-size: 20px; transition: 0.2s; user-select: none; text-align: center; display: block; }
+        .star.active { color: #f1c40f; } 
+        tr.is-favorite { background-color: #fffdf0 !important; }
+
+        .dahili-cell { font-weight: 700; color: var(--bagcilar-mavi); }
+        .badge-konum { background: #fff3cd; color: #856404; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+        
+        @media (max-width: 768px) { 
+            header { flex-direction: column; gap: 10px; text-align: center; } 
+            .hide-mobile { display: none; } 
+            .search-input { width: 100%; } 
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="brand">
+        <img src="https://www.bagcilar.bel.tr/assets/img/logo.png" style="height: 50px;">
+        <div class="titles">
+            <h1>BAĞCILAR BELEDİYESİ</h1>
+            <p>BİLGİ İŞLEM MÜDÜRLÜĞÜ | KURUMSAL REHBER</p>
+        </div>
+    </div>
+    <input type="text" id="searchInput" class="search-input" placeholder="İsim, birim veya unvan ara...">
+</header>
+
+<div class="content">
+    <div class="info-bar">Görüntülenen Kayıt: <strong id="count">0</strong></div>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 40px; text-align: center;">⭐</th>
+                    <th>Dahili</th>
+                    <th>Ad Soyad</th>
+                    <th>Birim</th>
+                    <th class="hide-mobile">Ünvan</th>
+                    <th class="hide-mobile">Konum</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+</div>
+
 <script>
     const rehberData = [
         {no: "106", ad: "RAKİME ÇİFTÇİ", birim: "TEFTİŞ KURULU MÜDÜRLÜĞÜ", unvan: "MÜFETTİŞ", konum: ""},
         {no: "107", ad: "MAHSUN İYİSAN", birim: "ULAŞIM HİZMETLERİ MÜDÜRLÜĞÜ", unvan: "PERSONEL", konum: ""},
         {no: "111", ad: "EYÜP YILDIZ", birim: "ÖZEL KALEM MÜDÜRLÜĞÜ", unvan: "DANIŞMAN", konum: ""},
         {no: "122", ad: "GÜLDANE ÖLMEZ", birim: "BİLGİ İŞLEM MÜDÜRLÜĞÜ", unvan: "OPERATÖR", konum: "ÇAĞRI MERKEZİ"},
-        {no: "135", ad: "KERİM MERT YILMAZ", birim: "
+        {no: "135", ad: "KERİM MERT YILMAZ", birim: "İMAR VE ŞEHİRCİLİK MÜDÜRLÜĞÜ", unvan: "MÜHENDİS", konum: "PROJE RUHSAT ŞEFLİĞİ"},
+        {no: "152", ad: "NURİ ÇAKAL", birim: "KENTSEL TASARIM MÜDÜRLÜĞÜ", unvan: "MÜDÜR", konum: ""}
+    ];
+
+    // Favorileri tarayıcı hafızasından çek
+    let favoriListesi = JSON.parse(localStorage.getItem("bagcilar_favoriler")) || [];
+
+    // MÜDÜR - mudur sorununu kökten çözen fonksiyon
+    function temizle(metin) {
+        if (!metin) return "";
+        return metin.toString()
+            .replace(/İ/g, 'i')
+            .replace(/I/g, 'ı')
+            .toLowerCase()
+            .replace(/ç/g, 'c')
+            .replace(/ğ/g, 'g')
+            .replace(/ö/g, 'o')
+            .replace(/ş/g, 's')
+            .replace(/ü/g, 'u') // ü -> u yapar
+            .replace(/ı/g, 'i') // ı -> i yapar (eşleşme garantisi)
+            .trim();
+    }
+
+    function tabloyuGoster(liste) {
+        const tableBody = document.getElementById("tableBody");
+        const count = document.getElementById("count");
+        tableBody.innerHTML = "";
+        
+        // Önce favorileri sonra alfabetik isimleri sırala
+        const siraliListe = [...liste].sort((a, b) => {
+            const aFav = favoriListesi.includes(a.no) ? 1 : 0;
+            const bFav = favoriListesi.includes(b.no) ? 1 : 0;
+            if (aFav !== bFav) return bFav - aFav;
+            return a.ad.localeCompare(b.ad);
+        });
+
+        count.textContent = siraliListe.length;
+
+        siraliListe.forEach(k => {
+            const isFav = favoriListesi.includes(k.no);
+            const rowClass = isFav ? 'is-favorite' : '';
+            const starClass = isFav ? 'star active' : 'star';
+
+            tableBody.innerHTML += `
+                <tr class="${rowClass}">
+                    <td style="text-align:center;"><span class="${starClass}" onclick="favoriToggle('${k.no}')">${isFav ? '★' : '☆'}</span></td>
+                    <td class="dahili-cell">${k.no}</td>
+                    <td>${k.ad}</td>
+                    <td>${k.birim}</td>
+                    <td class="hide-mobile">${k.unvan}</td>
+                    <td class="hide-mobile">${k.konum ? `<span class="badge-konum">${k.konum}</span>` : ''}</td>
+                </tr>`;
+        });
+    }
+
+    function favoriToggle(no) {
+        if (favoriListesi.includes(no)) {
+            favoriListesi = favoriListesi.filter(id => id !== no);
+        } else {
+            favoriListesi.push(no);
+        }
+        localStorage.setItem("bagcilar_favoriler", JSON.stringify(favoriListesi));
+        filtrele();
+    }
+
+    function filtrele() {
+        const aranan = temizle(document.getElementById("searchInput").value);
+        const sonuc = rehberData.filter(k => 
+            temizle(k.ad).includes(aranan) || 
+            temizle(k.birim).includes(aranan) || 
+            temizle(k.unvan).includes(aranan) || // "Müdür" araması burada temizlenip eşleşiyor
+            temizle(k.konum || "").includes(aranan) ||
+            k.no.includes(aranan)
+        );
+        tabloyuGoster(sonuc);
+    }
+
+    document.getElementById("searchInput").addEventListener("input", filtrele);
+
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+            const input = document.getElementById("searchInput");
+            input.value = "";
+            filtrele();
+        }
+    });
+
+    window.onload = () => {
+        document.getElementById("searchInput").focus();
+        tabloyuGoster(rehberData);
+    };
+</script>
