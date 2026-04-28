@@ -9,7 +9,7 @@
         :root { --bagcilar-mavi: #005596; --bagcilar-gri: #f8f9fa; }
         body { font-family: 'Roboto', sans-serif; background-color: var(--bagcilar-gri); margin: 0; padding: 0; }
         header { 
-            background-color: white; padding: 10px 30px; display: flex; 
+            background-color: white; padding: 15px 30px; display: flex; 
             justify-content: space-between; align-items: center; 
             border-bottom: 3px solid var(--bagcilar-mavi); 
             box-shadow: 0 4px 12px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; 
@@ -19,6 +19,7 @@
         .titles p { margin: 0; font-size: 11px; color: #666; font-weight: bold; }
         .search-input { width: 350px; padding: 12px 25px; border: 2px solid #ddd; border-radius: 25px; outline: none; transition: 0.3s; font-size: 15px; }
         .search-input:focus { border-color: var(--bagcilar-mavi); box-shadow: 0 0 8px rgba(0,85,150,0.2); }
+        
         .content { padding: 20px; }
         .info-bar { margin-bottom: 10px; font-size: 13px; color: #777; font-weight: bold; }
         .table-container { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
@@ -26,12 +27,25 @@
         thead { background-color: var(--bagcilar-mavi); color: white; }
         th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
         tr:hover { background-color: #f1f5f9; }
+
+        /* MÜDÜR SATIRI ÖZEL STİLİ */
+        .mudur-satir { 
+            background-color: #eef6ff !important; /* Hafif mavi arka plan */
+            font-weight: 600; 
+        }
+        .mudur-satir td {
+            color: #004085; /* Yazı rengini biraz daha koyulaştırır */
+        }
+        .mudur-satir .dahili-cell {
+            color: #d9534f; /* Müdürlerin dahili numarasını kırmızı yaparak daha da belirginleştirir */
+        }
+
         .star { cursor: pointer; color: #ccc; font-size: 22px; user-select: none; }
         .star.active { color: #f1c40f; } 
         tr.is-favorite { background-color: #fffdf0 !important; }
         .dahili-cell { font-weight: 700; color: var(--bagcilar-mavi); font-size: 16px; }
         .badge-konum { background: #e2f0fb; color: #005596; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; border: 1px solid #b6d4fe; }
-        @media (max-width: 768px) { header { flex-direction: column; gap: 10px; text-align: center; } .hide-mobile { display: none; } .search-input { width: 90%; } }
+        @media (max-width: 768px) { header { flex-direction: column; gap: 10px; text-align: center; } .hide-mobile { display: none; } .search-input { width: 95%; } }
     </style>
 </head>
 <body>
@@ -41,10 +55,10 @@
         <img src="https://www.bagcilar.bel.tr/assets/img/logo.png" style="height: 55px;">
         <div class="titles">
             <h1>BAĞCILAR BELEDİYESİ</h1>
-            <p>BİLGİ İŞLEM MÜDÜRLÜĞÜ | DİJİTAL REHBER</p>
+            <p>BİLGİ İŞLEM MÜDÜRLÜĞÜ | KURUMSAL REHBER</p>
         </div>
     </div>
-    <input type="text" id="searchInput" class="search-input" placeholder="İsim, birim, unvan veya konum ara...">
+    <input type="text" id="searchInput" class="search-input" placeholder="İsim, birim, dahili veya konum ara...">
 </header>
 
 <div class="content">
@@ -57,23 +71,4 @@
                     <th>DAHİLİ</th>
                     <th>AD SOYAD</th>
                     <th>BİRİM</th>
-                    <th class="hide-mobile">ÜNVAN</th>
-                    <th class="hide-mobile">KONUM</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody"></tbody>
-        </table>
-    </div>
-</div>
-
-<script>
-    // Noktayı kaldırdık, tertemiz yaptık
-    const rehberData = [
-        {no: "152", ad: "NURİ ÇAKAL", birim: "KENTSEL TASARIM MÜDÜRLÜĞÜ", unvan: "MÜDÜR", konum: "ANA BİNA"},
-        {no: "122", ad: "GÜLDANE ÖLMEZ", birim: "BİLGİ İŞLEM MÜDÜRLÜĞÜ", unvan: "OPERATÖR", konum: "ÇAĞRI MERKEZİ"},
-        {no: "106", ad: "RAKİME ÇİFTÇİ", birim: "TEFTİŞ KURULU MÜDÜRLÜĞÜ", unvan: "MÜFETTİŞ", konum: "EK HİZMET"},
-        {no: "107", ad: "MAHSUN İYİSAN", birim: "ULAŞIM HİZMETLERİ MÜDÜRLÜĞÜ", unvan: "PERSONEL", konum: "ŞANTİYE"},
-        {no: "111", ad: "EYÜP YILDIZ", birim: "ÖZEL KALEM MÜDÜRLÜĞÜ", unvan: "DANIŞMAN", konum: "BAŞKANLIK"}
-    ];
-
-    let favoriListesi = JSON.parse(localStorage
+                    <th>Ü
