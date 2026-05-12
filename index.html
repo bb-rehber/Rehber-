@@ -4,163 +4,141 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bağcılar Belediyesi | Dijital Rehber</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --bagcilar-mavi: #005596; --bagcilar-gri: #f8f9fa; }
-        body { font-family: 'Roboto', sans-serif; background-color: var(--bagcilar-gri); margin: 0; padding: 0; }
-        header { 
-            background-color: white; padding: 15px 30px; display: flex; 
-            justify-content: space-between; align-items: center; 
-            border-bottom: 3px solid var(--bagcilar-mavi); 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; 
-        }
-        .brand { display: flex; align-items: center; gap: 15px; }
-        .titles h1 { margin: 0; font-size: 22px; color: var(--bagcilar-mavi); }
-        .titles p { margin: 0; font-size: 11px; color: #666; font-weight: bold; }
-        .search-input { width: 350px; padding: 12px 25px; border: 2px solid #ddd; border-radius: 25px; outline: none; transition: 0.3s; font-size: 15px; }
-        .search-input:focus { border-color: var(--bagcilar-mavi); box-shadow: 0 0 8px rgba(0,85,150,0.2); }
-        .content { padding: 20px; }
-        .info-bar { margin-bottom: 10px; font-size: 13px; color: #777; font-weight: bold; }
-        .table-container { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-        table { width: 100%; border-collapse: collapse; }
-        thead { background-color: var(--bagcilar-mavi); color: white; }
-        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; padding: 20px; color: #333; }
+        .container { background: white; padding: 20px; border-radius: 4px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
         
-        /* MÜDÜR RENKLENDİRME */
-        .mudur-satir { background-color: #eef6ff !important; font-weight: 600; }
-        .mudur-satir td { color: #004085; }
+        /* Üst Başlık */
+        .header-title { text-align: center; font-size: 20px; font-weight: bold; margin-bottom: 25px; color: #444; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+
+        /* Kontrol Paneli (Sayfa Sayısı ve Ara) */
+        .controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 14px; }
+        .search-box input { padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; width: 250px; }
         
+        /* Tablo Yapısı */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        thead { background-color: #5897fb; color: white; }
+        th { padding: 12px; text-align: left; font-size: 14px; border-right: 1px solid rgba(255,255,255,0.2); cursor: pointer; }
+        td { padding: 10px 12px; border: 1px solid #eee; font-size: 13px; }
+        
+        /* Satır Renkleri */
+        tr:nth-child(even) { background-color: #fafafa; }
         tr:hover { background-color: #f1f5f9; }
-        .star { cursor: pointer; color: #ccc; font-size: 22px; user-select: none; }
-        .star.active { color: #f1c40f; } 
-        tr.is-favorite { background-color: #fffdf0 !important; }
-        .dahili-cell { font-weight: 700; color: var(--bagcilar-mavi); font-size: 16px; }
-        .badge-konum { background: #e2f0fb; color: #005596; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; border: 1px solid #b6d4fe; }
-        @media (max-width: 768px) { header { flex-direction: column; gap: 10px; text-align: center; } .hide-mobile { display: none; } .search-input { width: 95%; } }
+        
+        /* Favori ve Müdür Stilleri */
+        .star { cursor: pointer; color: #ccc; font-size: 20px; }
+        .star.active { color: #f1c40f; }
+        .is-favorite { background-color: #fffdf0 !important; }
+        .mudur-satir { font-weight: bold; color: #005596; }
+
+        .dahili-no { color: #5897fb; font-weight: bold; width: 80px; }
     </style>
 </head>
 <body>
 
-<header>
-    <div class="brand">
-        <img src="https://www.bagcilar.bel.tr/assets/img/logo.png" style="height: 55px;">
-        <div class="titles">
-            <h1>BAĞCILAR BELEDİYESİ</h1>
-            <p>BİLGİ İŞLEM MÜDÜRLÜĞÜ | KURUMSAL REHBER</p>
+<div class="container">
+    <div class="header-title">BAĞCILAR BELEDİYESİ REHBER BİLGİLERİ</div>
+
+    <div class="controls">
+        <div>
+            Sayfada 
+            <select id="pageSize">
+                <option value="50">50</option>
+                <option value="100">100</option>
+                <option value="all">Tümü</option>
+            </select> 
+            kayıt göster
+        </div>
+        <div class="search-box">
+            Ara: <input type="text" id="searchInput">
         </div>
     </div>
-    <input type="text" id="searchInput" class="search-input" placeholder="Herhangi bir şey ara...">
-</header>
 
-<div class="content">
-    <div class="info-bar">Görüntülenen Kayıt: <span id="count">0</span></div>
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th style="width: 50px; text-align: center;">FAV</th>
-                    <th>DAHİLİ</th>
-                    <th>AD SOYAD</th>
-                    <th>BİRİM</th>
-                    <th>ÜNVAN</th>
-                    <th class="hide-mobile">KONUM</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody"></tbody>
-        </table>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 40px; text-align: center;">★</th>
+                <th>Dahili No</th>
+                <th>Ad Soyad</th>
+                <th>Birim</th>
+                <th>Ünvan</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <!-- Veriler JS ile buraya gelecek -->
+        </tbody>
+    </table>
+    
+    <div style="margin-top: 15px; font-size: 12px; color: #777;">
+        Toplam Kayıt: <span id="totalCount">0</span>
     </div>
 </div>
 
 <script>
-    // VERİLER
-    const rehberData = [
-        {no: "152", ad: "NURİ ÇAKAL", birim: "KENTSEL TASARIM MÜDÜRLÜĞÜ", unvan: "MÜDÜR", konum: "ANA BİNA"},
-        {no: "122", ad: "GÜLDANE ÖLMEZ", birim: "BİLGİ İŞLEM MÜDÜRLÜĞÜ", unvan: "OPERATÖR", konum: "ÇAĞRI MERKEZİ"},
-        {no: "106", ad: "RAKİME ÇİFTÇİ", birim: "TEFTİŞ KURULU MÜDÜRLÜĞÜ", unvan: "MÜFETTİŞ", konum: "EK HİZMET"},
-        {no: "107", ad: "MAHSUN İYİSAN", birim: "ULAŞIM HİZMETLERİ MÜDÜRLÜĞÜ", unvan: "PERSONEL", konum: "ŞANTİYE"},
-        {no: "111", ad: "EYÜP YILDIZ", birim: "ÖZEL KALEM MÜDÜRLÜĞÜ", unvan: "DANIŞMAN", konum: "BAŞKANLIK"}
+    // Örnek Veri Seti
+    let rehberData = [
+        {no: "11-00", ad: "MEHMET UYGUN", birim: "İMAR VE ŞEHİRCİLİK MÜDÜRLÜĞÜ", unvan: "MÜDÜR"},
+        {no: "11-01", ad: "İBRAHİM ÇAĞRI MERT", birim: "İMAR VE ŞEHİRCİLİK MÜDÜRLÜĞÜ", unvan: "YAPI DENETİM BÜROSU ŞEFİ"},
+        {no: "15-22", ad: "NURİ ÇAKAL", birim: "BİLGİ İŞLEM MÜDÜRLÜĞÜ", unvan: "MÜDÜR"},
+        {no: "10-05", ad: "ALİ DALKILIÇ", birim: "İMAR VE ŞEHİRCİLİK MÜDÜRLÜĞÜ", unvan: "YAPI DENETİM"}
     ];
 
-    let favoriListesi = JSON.parse(localStorage.getItem("bagcilar_favoriler")) || [];
+    let favoriler = JSON.parse(localStorage.getItem("rehber_favs")) || [];
 
-    function temizle(text) {
-        if (!text) return "";
-        return text.toString()
-            .replace(/İ/g, 'i').replace(/I/g, 'ı')
-            .toLowerCase()
-            .replace(/ç/g, 'c').replace(/ğ/g, 'g').replace(/ö/g, 'o')
-            .replace(/ş/g, 's').replace(/ü/g, 'u').replace(/ı/g, 'i')
-            .trim();
+    function temizle(t) {
+        return t ? t.toString().replace(/İ/g, 'i').replace(/I/g, 'ı').toLowerCase().trim() : "";
     }
 
-    function tabloyuGoster(liste) {
-        const tBody = document.getElementById("tableBody");
-        const countSpan = document.getElementById("count");
-        if (!tBody) return;
-
+    function tabloCiz(liste) {
+        const tbody = document.getElementById("tableBody");
         let html = "";
-        
-        // Sıralama: Önce favoriler, sonra isim
+
+        // Sıralama: Önce favoriler, sonra Dahili No
         const sirali = [...liste].sort((a, b) => {
-            const aF = favoriListesi.includes(a.no) ? 1 : 0;
-            const bF = favoriListesi.includes(b.no) ? 1 : 0;
-            if (aF !== bF) return bF - aF;
-            return a.ad.localeCompare(b.ad, 'tr');
+            const af = favoriler.includes(a.no) ? 1 : 0;
+            const bf = favoriler.includes(b.no) ? 1 : 0;
+            if (af !== bf) return bf - af;
+            return a.no.localeCompare(b.no);
         });
 
         sirali.forEach(k => {
-            const isF = favoriListesi.includes(k.no);
+            const isFav = favoriler.includes(k.no);
             const isMudur = temizle(k.unvan).includes("mudur");
             
-            const satirClass = `
-                ${isF ? 'is-favorite' : ''} 
-                ${isMudur ? 'mudur-satir' : ''}
-            `.trim();
-
             html += `
-                <tr class="${satirClass}">
-                    <td style="text-align:center;">
-                        <span class="star ${isF ? 'active' : ''}" onclick="favoriToggle('${k.no}')">${isF ? '★' : '☆'}</span>
-                    </td>
-                    <td class="dahili-cell">${k.no}</td>
-                    <td style="font-weight: bold;">${k.ad}</td>
+                <tr class="${isFav ? 'is-favorite' : ''} ${isMudur ? 'mudur-satir' : ''}">
+                    <td style="text-align:center;"><span class="star ${isFav ? 'active' : ''}" onclick="favToggle('${k.no}')">${isFav ? '★' : '☆'}</span></td>
+                    <td class="dahili-no">${k.no}</td>
+                    <td>${k.ad}</td>
                     <td>${k.birim}</td>
                     <td>${k.unvan}</td>
-                    <td class="hide-mobile">${k.konum ? `<span class="badge-konum">${k.konum}</span>` : '-'}</td>
-                </tr>`;
+                </tr>
+            `;
         });
-
-        tBody.innerHTML = html;
-        countSpan.innerText = sirali.length;
+        tbody.innerHTML = html;
+        document.getElementById("totalCount").innerText = sirali.length;
     }
 
-    function favoriToggle(no) {
-        favoriListesi = favoriListesi.includes(no) ? favoriListesi.filter(i => i !== no) : [...favoriListesi, no];
-        localStorage.setItem("bagcilar_favoriler", JSON.stringify(favoriListesi));
-        filtrele(); 
+    function favToggle(no) {
+        favoriler = favoriler.includes(no) ? favoriler.filter(n => n !== no) : [...favoriler, no];
+        localStorage.setItem("rehber_favs", JSON.stringify(favoriler));
+        filtrele();
     }
 
     function filtrele() {
-        const input = document.getElementById("searchInput");
-        const aranan = temizle(input.value);
-        
-        const sonuclar = rehberData.filter(item => {
-            return temizle(item.ad).includes(aranan) || 
-                   temizle(item.birim).includes(aranan) || 
-                   temizle(item.unvan).includes(aranan) || 
-                   temizle(item.no).includes(aranan) || 
-                   temizle(item.konum || "").includes(aranan);
-        });
-        
-        tabloyuGoster(sonuclar);
+        const word = temizle(document.getElementById("searchInput").value);
+        const sonuc = rehberData.filter(i => 
+            temizle(i.ad).includes(word) || 
+            temizle(i.birim).includes(word) || 
+            temizle(i.unvan).includes(word) || 
+            i.no.includes(word)
+        );
+        tabloCiz(sonuc);
     }
 
-    // Input dinleyiciyi bağla
     document.getElementById("searchInput").addEventListener("input", filtrele);
-
-    // DİREKT ÇALIŞTIR (Hiçbir şarta bağlamadan)
-    tabloyuGoster(rehberData);
-
+    tabloCiz(rehberData);
 </script>
+
 </body>
 </html>
