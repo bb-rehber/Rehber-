@@ -3,146 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bağcılar Belediyesi | Dijital Rehber</title>
+    <title>Bağcılar Belediyesi | Kurumsal Rehber</title>
     <style>
-        /* Genel Ayarlar */
         body { font-family: Arial, sans-serif; background-color: #f4f7f6; padding: 20px; color: #333; }
         .container { background: white; padding: 20px; border-radius: 4px; box-shadow: 0 0 10px rgba(0,0,0,0.1); max-width: 1200px; margin: auto; }
-        
-        /* Başlık - Bir tık büyütüldü */
         .header-title { text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 25px; color: #444; border-bottom: 2px solid #eee; padding-bottom: 15px; }
-
-        /* Kontrol Paneli */
         .controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 16px; }
         .search-box input { padding: 10px 15px; border: 1px solid #ccc; border-radius: 4px; width: 300px; font-size: 15px; }
         
-        /* Tablo ve Sabit Başlık Katmanı */
-        .table-wrapper {
-            max-height: 75vh; /* Ekranın büyük kısmını kaplar */
-            overflow-y: auto;
-            border: 1px solid #ddd;
-        }
-
+        /* Sabit Başlık Katmanı */
+        .table-wrapper { max-height: 75vh; overflow-y: auto; border: 1px solid #ddd; }
         table { width: 100%; border-collapse: collapse; background: white; }
-        
-        /* Sabit Mavi Başlık */
         thead th { 
-            position: sticky; 
-            top: 0; 
-            z-index: 10; 
-            background-color: #5897fb; 
-            color: white;
-            padding: 15px; 
-            text-align: left; 
-            font-size: 16px; /* Başlık yazısı büyütüldü */
-            border-right: 1px solid rgba(255,255,255,0.2);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: sticky; top: 0; z-index: 10; background-color: #5897fb; color: white;
+            padding: 15px; text-align: left; font-size: 16px; border-right: 1px solid rgba(255,255,255,0.2);
         }
 
-        /* İçerik Yazıları - Bir tık büyütüldü */
+        /* Dahili No Ortalama ve Yazı Boyutu */
         td { padding: 12px 15px; border: 1px solid #eee; font-size: 15px; }
+        .dahili-no { color: #5897fb; font-weight: bold; width: 100px; font-size: 16px; text-align: center; }
         
-        /* Satır Renkleri ve Efektler */
         tr:nth-child(even) { background-color: #fafafa; }
         tr:hover { background-color: #f1f5f9; }
-        
-        /* Özel Durumlar */
         .star { cursor: pointer; color: #ccc; font-size: 22px; user-select: none; }
         .star.active { color: #f1c40f; }
         .is-favorite { background-color: #fffdf0 !important; }
         .mudur-satir { font-weight: bold; color: #005596; background-color: #f0f7ff !important; }
-
-        .dahili-no { color: #5897fb; font-weight: bold; width: 100px; font-size: 16px; }
-
-        /* Mobil Ayarı */
-        @media (max-width: 768px) {
-            .controls { flex-direction: column; gap: 10px; }
-            .search-box input { width: 100%; }
-        }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header-title">BAĞCILAR BELEDİYESİ REHBER BİLGİLERİ</div>
-
     <div class="controls">
-        <div>
-            Sayfada 
-            <select id="pageSize" style="padding: 5px; font-size: 14px;">
-                <option value="50">50</option>
-                <option value="100">100</option>
-                <option value="all">Tümü</option>
-            </select> 
-            kayıt göster
-        </div>
+        <div>Sayfada 50 kayıt göster</div>
         <div class="search-box">
-            Ara: <input type="text" id="searchInput" placeholder="İsim, birim veya dahili yazın...">
+            Ara: <input type="text" id="searchInput" placeholder="İsim, birim veya dahili ara...">
         </div>
     </div>
-
     <div class="table-wrapper">
         <table>
             <thead>
                 <tr>
                     <th style="width: 50px; text-align: center;">★</th>
-                    <th>Dahili No</th>
+                    <th style="text-align: center;">Dahili No</th>
                     <th>Ad Soyad</th>
                     <th>Birim</th>
                     <th>Ünvan</th>
                 </tr>
             </thead>
-            <tbody id="tableBody">
-                <!-- Veriler buraya gelecek -->
-            </tbody>
+            <tbody id="tableBody"></tbody>
         </table>
     </div>
-    
     <div style="margin-top: 15px; font-size: 14px; color: #666; font-weight: bold;">
-        Görüntülenen Toplam Kayıt: <span id="totalCount">0</span>
+        Toplam Kayıt: <span id="totalCount">0</span>
     </div>
 </div>
 
 <script>
-    // VERİ SETİ (Bu kısmı daha sonra fetch ile dışarıdan alacağız)
-    let rehberData = [
-        {no: "11-00", ad: "MEHMET UYGUN", birim: "İMAR VE ŞEHİRCİLİK MÜDÜRLÜĞÜ", unvan: "MÜDÜR"},
-        {no: "11-01", ad: "İBRAHİM ÇAĞRI MERT", birim: "İMAR VE ŞEHİRCİLİK MÜDÜRLÜĞÜ", unvan: "YAPI DENETİM BÜROSU ŞEFİ"},
-        {no: "11-02", ad: "İBRAHİM OKTAR", birim: "İMAR VE ŞEHİRCİLİK MÜDÜRLÜĞÜ", unvan: ""},
-        {no: "15-22", ad: "NURİ ÇAKAL", birim: "BİLGİ İŞLEM MÜDÜRLÜĞÜ", unvan: "MÜDÜR"},
-        {no: "10-05", ad: "ALİ DALKILIÇ", birim: "İMAR VE ŞEHİRCİLİK MÜDÜRLÜĞÜ", unvan: "YAPI DENETİM"},
-        {no: "20-10", ad: "KADİR YILMAZ", birim: "BİLGİ İŞLEM MÜDÜRLÜĞÜ", unvan: "TEKNİK PERSONEL"}
-    ];
-
+    let rehberData = [];
     let favoriler = JSON.parse(localStorage.getItem("rehber_favs")) || [];
 
-    // Türkçe karakter uyumlu arama fonksiyonu
-    function temizle(t) {
-        if(!t) return "";
-        return t.toString()
-            .replace(/İ/g, 'i').replace(/I/g, 'ı')
-            .replace(/Ş/g, 's').replace(/Ğ/g, 'g')
-            .replace(/Ü/g, 'u').replace(/Ö/g, 'o')
-            .replace(/Ç/g, 'c')
-            .toLowerCase().trim();
+    // Verileri JSON dosyasından çekiyoruz
+    async function verileriGetir() {
+        try {
+            const response = await fetch('rehber.json');
+            rehberData = await response.json();
+            tabloCiz(rehberData);
+        } catch (error) {
+            console.error("HATA: rehber.json dosyası bulunamadı veya formatı hatalı!");
+        }
+    }
+
+    function normalizeText(text) {
+        if (!text) return "";
+        return text.toString().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+            .replace(/İ/g, 'i').replace(/I/g, 'ı').replace(/Ş/g, 's').replace(/Ğ/g, 'g')
+            .replace(/Ü/g, 'u').replace(/Ö/g, 'o').replace(/Ç/g, 'c').toLowerCase().trim();
     }
 
     function tabloCiz(liste) {
         const tbody = document.getElementById("tableBody");
         let html = "";
-
-        // Sıralama mantığı: Önce favoriler, sonra Dahili No (Küçükten Büyüğe)
         const sirali = [...liste].sort((a, b) => {
             const af = favoriler.includes(a.no) ? 1 : 0;
             const bf = favoriler.includes(b.no) ? 1 : 0;
-            if (af !== bf) return bf - af;
-            return a.no.localeCompare(b.no);
+            return bf - af; // Sadece favoriler en üste, gerisi JSON'daki sırayla
         });
 
         sirali.forEach(k => {
             const isFav = favoriler.includes(k.no);
-            const isMudur = temizle(k.unvan).includes("mudur");
-            
+            const isMudur = normalizeText(k.unvan).includes("mudur");
             html += `
                 <tr class="${isFav ? 'is-favorite' : ''} ${isMudur ? 'mudur-satir' : ''}">
                     <td style="text-align:center;"><span class="star ${isFav ? 'active' : ''}" onclick="favToggle('${k.no}')">${isFav ? '★' : '☆'}</span></td>
@@ -150,8 +101,7 @@
                     <td style="font-weight: 500;">${k.ad}</td>
                     <td>${k.birim}</td>
                     <td>${k.unvan}</td>
-                </tr>
-            `;
+                </tr>`;
         });
         tbody.innerHTML = html;
         document.getElementById("totalCount").innerText = sirali.length;
@@ -164,22 +114,16 @@
     }
 
     function filtrele() {
-        const word = temizle(document.getElementById("searchInput").value);
+        const word = normalizeText(document.getElementById("searchInput").value);
         const sonuc = rehberData.filter(i => 
-            temizle(i.ad).includes(word) || 
-            temizle(i.birim).includes(word) || 
-            temizle(i.unvan).includes(word) || 
-            i.no.includes(word)
+            normalizeText(i.ad).includes(word) || normalizeText(i.birim).includes(word) || 
+            normalizeText(i.unvan).includes(word) || i.no.toString().includes(word)
         );
         tabloCiz(sonuc);
     }
 
-    // Olay Dinleyiciler
     document.getElementById("searchInput").addEventListener("input", filtrele);
-    
-    // İlk çalıştırma
-    tabloCiz(rehberData);
+    verileriGetir(); // Sayfa açılınca JSON'ı yükle
 </script>
-
 </body>
 </html>
