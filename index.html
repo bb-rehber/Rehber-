@@ -7,47 +7,21 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root { --primary: #4479d4; --dark: #1e293b; --bg: #f4f7f9; --star: #ffc107; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; }
-        
-        .container { 
-            max-width: 98%; 
-            margin: auto; 
-            background: white; 
-            padding: 25px; 
-            border-radius: 10px; 
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08); 
-        }
-
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 20px; }
+        .container { max-width: 98%; margin: auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
         .header-top { border-bottom: 2px solid #edf2f7; margin-bottom: 20px; padding-bottom: 15px; text-align: center; }
-        .header-top h2 { margin: 0; color: #2d3748; text-transform: uppercase; letter-spacing: 1px; }
-
         .controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: #fafafa; padding: 15px; border-radius: 8px; }
         #searchBox { width: 400px; padding: 12px; border: 1px solid #cbd5e0; border-radius: 6px; outline: none; font-size: 14px; }
-        
         .table-area { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; text-align: left; }
-        
-        th { 
-            background: var(--primary); 
-            color: white; 
-            padding: 15px; 
-            font-size: 13px; 
-            text-transform: uppercase;
-            position: sticky; top: 0;
-        }
-        
+        th { background: var(--primary); color: white; padding: 15px; font-size: 13px; text-transform: uppercase; position: sticky; top: 0; }
         td { padding: 12px 15px; border-bottom: 1px solid #edf2f7; font-size: 14px; color: #2d3748; }
         tr:hover { background-color: #f1f5f9; cursor: pointer; }
-        
-        /* Favori Yıldız Stili */
         .btn-star { color: #ccc; cursor: pointer; font-size: 18px; transition: 0.2s; }
         .btn-star.active { color: var(--star); }
-        
         .dahili-box { font-weight: bold; color: #d32f2f; background: #fdf2f2; padding: 4px 8px; border-radius: 4px; }
-        .loading { text-align: center; padding: 50px; font-size: 18px; color: var(--primary); font-weight: bold; }
-        
-        /* Favori Satırı Vurgusu */
         tr.is-fav { background-color: #fffbeb; }
+        .loading { text-align: center; padding: 50px; font-size: 18px; color: var(--primary); font-weight: bold; }
     </style>
 </head>
 <body>
@@ -62,19 +36,17 @@
         <input type="text" id="searchBox" placeholder="İsim, birim veya dahili no ile ara..." onkeyup="filterData()">
     </div>
 
-    <div id="loader" class="loading">
-        <i class="fas fa-spinner fa-spin"></i> 1200+ Kayıt Güncelleniyor...
-    </div>
+    <div id="loader" class="loading"><i class="fas fa-spinner fa-spin"></i> 1200+ Kayıt Güncelleniyor...</div>
 
     <div class="table-area">
         <table id="rehberTable" style="display: none;">
             <thead>
                 <tr>
                     <th style="width: 50px;"><i class="fas fa-star"></i></th>
-                    <th style="width: 150px;">DAHİLİ NO</th>
-                    <th>AD SOYAD</th>
-                    <th>BİRİM</th>
-                    <th>ÜNVAN</th>
+                    <th style="width: 150px;">Dahili No</th>
+                    <th>Ad Soyad</th>
+                    <th>Birim</th>
+                    <th>Ünvan</th>
                 </tr>
             </thead>
             <tbody id="tBody"></tbody>
@@ -83,14 +55,13 @@
 </div>
 
 <script>
-    // --- AYARLAR ---
-    const sheetId = 'TABLO_ID_BURAYA'; // Kendi ID'nizi buraya yapıştırın
+    // BURAYA GOOGLE TABLO ID'SINI YAPIŞTIR
+    const sheetId = 'TABLO_ID_BURAYA'; 
     const base = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json`;
     
     let allData = [];
     let favorites = JSON.parse(localStorage.getItem('rehber_favs')) || [];
 
-    // --- VERİ ÇEKME ---
     async function fetchData() {
         try {
             const response = await fetch(base);
@@ -108,16 +79,13 @@
 
             document.getElementById('loader').style.display = 'none';
             document.getElementById('rehberTable').style.display = 'table';
-            updateStats(allData.length);
             renderTable(allData);
         } catch (e) {
-            document.getElementById('loader').innerHTML = "Bağlantı Hatası! Lütfen tablo ID'sini ve paylaşım ayarlarını kontrol edin.";
+            document.getElementById('loader').innerHTML = "Hata! Tablo ID'sini ve paylaşım ayarlarını kontrol et.";
         }
     }
 
-    // --- TABLOYU ÇİZME ---
     function renderTable(data) {
-        // Favorileri en üste taşımak için sırala
         const sortedData = [...data].sort((a, b) => {
             const aFav = favorites.includes(a.ad) ? 1 : 0;
             const bFav = favorites.includes(b.ad) ? 1 : 0;
@@ -129,7 +97,7 @@
             return `
                 <tr class="${isFav ? 'is-fav' : ''}">
                     <td onclick="toggleFav('${i.ad}')">
-                        <i class="fa-star ${isFav ? 'fas active' : 'far'} btn-star"></i>
+                        <i class="${isFav ? 'fas active' : 'far'} fa-star btn-star"></i>
                     </td>
                     <td><span class="dahili-box">${i.dahili}</span></td>
                     <td><b>${i.ad}</b></td>
@@ -140,9 +108,9 @@
         }).join('');
         
         document.getElementById('tBody').innerHTML = html;
+        document.getElementById('stats').innerHTML = `Toplam <b>${data.length}</b> kayıt listeleniyor.`;
     }
 
-    // --- FAVORİ İŞLEMLERİ ---
     function toggleFav(name) {
         if (favorites.includes(name)) {
             favorites = favorites.filter(f => f !== name);
@@ -150,24 +118,17 @@
             favorites.push(name);
         }
         localStorage.setItem('rehber_favs', JSON.stringify(favorites));
-        // Arama kutusu doluysa filtreyi bozma, boşsa genel listeyi yenile
         filterData();
     }
 
-    // --- FİLTRELEME ---
     function filterData() {
         const val = document.getElementById('searchBox').value.toLowerCase();
         const res = allData.filter(i => 
-            i.ad.toLowerCase().includes(val) || 
-            i.birim.toLowerCase().includes(val) || 
-            i.dahili.toString().includes(val)
+            String(i.ad).toLowerCase().includes(val) || 
+            String(i.birim).toLowerCase().includes(val) || 
+            String(i.dahili).includes(val)
         );
         renderTable(res);
-        updateStats(res.length);
-    }
-
-    function updateStats(count) {
-        document.getElementById('stats').innerHTML = `Toplam <b>${count}</b> kayıt listeleniyor.`;
     }
 
     window.onload = fetchData;
