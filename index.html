@@ -3,127 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bağcılar Belediyesi | Kurumsal Rehber</title>
+    <title>Altyapı Envanter Listesi</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f7f6; padding: 20px; color: #333; }
-        .container { background: white; padding: 20px; border-radius: 4px; box-shadow: 0 0 10px rgba(0,0,0,0.1); max-width: 1200px; margin: auto; }
-        .header-title { text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 25px; color: #444; border-bottom: 2px solid #eee; padding-bottom: 15px; }
-        .controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 16px; }
-        .search-box input { padding: 10px 15px; border: 1px solid #ccc; border-radius: 4px; width: 300px; font-size: 15px; }
+        :root { --primary: #4479d4; --dark: #334155; --bg: #f8fafc; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f9; margin: 0; padding: 20px; }
         
-        /* Sabit Başlık Katmanı */
-        .table-wrapper { max-height: 75vh; overflow-y: auto; border: 1px solid #ddd; }
-        table { width: 100%; border-collapse: collapse; background: white; }
-        thead th { 
-            position: sticky; top: 0; z-index: 10; background-color: #5897fb; color: white;
-            padding: 15px; text-align: left; font-size: 16px; border-right: 1px solid rgba(255,255,255,0.2);
+        /* Sayfayı tam genişleten ana kaplayıcı */
+        .container { 
+            max-width: 98%; 
+            margin: auto; 
+            background: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1); 
         }
 
-        /* Dahili No Ortalama ve Yazı Boyutu */
-        td { padding: 12px 15px; border: 1px solid #eee; font-size: 15px; }
-        .dahili-no { color: #5897fb; font-weight: bold; width: 100px; font-size: 16px; text-align: center; }
+        .header-top { border-bottom: 2px solid #eee; margin-bottom: 20px; padding-bottom: 10px; text-align: center; }
+        .header-top h2 { margin: 0; color: #2c3e50; text-transform: uppercase; letter-spacing: 1px; font-size: 22px; }
+        .header-top p { margin: 5px 0 0; color: #64748b; font-weight: bold; font-size: 14px; }
+
+        .controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .show-records { font-size: 14px; color: #475569; }
+        .show-records select { padding: 5px; border-radius: 4px; border: 1px solid #ddd; }
         
-        tr:nth-child(even) { background-color: #fafafa; }
-        tr:hover { background-color: #f1f5f9; }
-        .star { cursor: pointer; color: #ccc; font-size: 22px; user-select: none; }
-        .star.active { color: #f1c40f; }
-        .is-favorite { background-color: #fffdf0 !important; }
-        .mudur-satir { font-weight: bold; color: #005596; background-color: #f0f7ff !important; }
+        #searchBox { width: 300px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; outline: none; }
+
+        /* Tablo Tasarımı (Ekran görüntündeki gibi) */
+        .table-area { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        
+        th { 
+            background: var(--primary); 
+            color: white; 
+            padding: 15px; 
+            font-size: 14px; 
+            text-transform: uppercase;
+            border-right: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 14px; color: #334155; }
+        tr:nth-child(even) { background-color: #fcfcfc; }
+        tr:hover { background-color: #f1f5f9; cursor: pointer; }
+        
+        b { color: #1e293b; }
+        code { background: #f1f5f9; color: #d32f2f; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; }
+
+        /* Kişi Kartı (Modal) */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(3px); }
+        .modal-content { background: white; margin: 10vh auto; width: 450px; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .card-header { background: #1e293b; color: white; padding: 20px; position: relative; }
+        .close { position: absolute; right: 15px; top: 15px; cursor: pointer; font-size: 20px; color: #94a3b8; }
+        .card-body { padding: 20px; }
+        .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
+        .info-lbl { font-size: 11px; font-weight: bold; color: #94a3b8; text-transform: uppercase; }
+        .info-val { font-size: 14px; color: #1e293b; font-weight: 500; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header-title">BAĞCILAR BELEDİYESİ REHBER BİLGİLERİ</div>
-    <div class="controls">
-        <div>Sayfada 50 kayıt göster</div>
-        <div class="search-box">
-            Ara: <input type="text" id="searchInput" placeholder="İsim, birim veya dahili ara...">
-        </div>
+    <div class="header-top">
+        <h2>ALTYAPI ENVANTER LİSTESİ</h2>
+        <p>BİLGİ İŞLEM MÜDÜRLÜĞÜ</p>
     </div>
-    <div class="table-wrapper">
+
+    <div class="controls">
+        <div class="show-records">
+            Sayfada <select id="rowCount"><option value="50">50</option><option value="100">100</option></select> kayıt göster
+        </div>
+        <input type="text" id="searchBox" placeholder="İsim, birim veya devre ara..." onkeyup="filter()">
+    </div>
+
+    <div class="table-area">
         <table>
             <thead>
                 <tr>
-                    <th style="width: 50px; text-align: center;">★</th>
-                    <th style="text-align: center;">Dahili No</th>
-                    <th>Ad Soyad</th>
-                    <th>Birim</th>
-                    <th>Ünvan</th>
+                    <th style="width: 30%;">BİRİM ADI</th>
+                    <th style="width: 20%;">MAHALLE</th>
+                    <th style="width: 30%;">ADRES</th>
+                    <th style="width: 20%;">DEVRE NO</th>
                 </tr>
             </thead>
-            <tbody id="tableBody"></tbody>
+            <tbody id="tBody"></tbody>
         </table>
     </div>
-    <div style="margin-top: 15px; font-size: 14px; color: #666; font-weight: bold;">
-        Toplam Kayıt: <span id="totalCount">0</span>
+</div>
+
+<div id="myModal" class="modal">
+    <div class="modal-content">
+        <div class="card-header">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3 id="m-birim" style="margin:0; font-size:16px;"></h3>
+        </div>
+        <div class="card-body">
+            <div class="info-row"><span class="info-lbl">Mahalle</span><span class="info-val" id="m-mahalle"></span></div>
+            <div class="info-row"><span class="info-lbl">Açık Adres</span><span class="info-val" id="m-adres"></span></div>
+            <div class="info-row"><span class="info-lbl">Devre No</span><span class="info-val"><code id="m-devre"></code></span></div>
+            <div class="info-row"><span class="info-lbl">Dış IP</span><span class="info-val" id="m-ip" style="color:blue;"></span></div>
+            <div class="info-row"><span class="info-lbl">Hız / Tip</span><span class="info-val" id="m-tip"></span></div>
+            <div class="info-row"><span class="info-lbl">Durum</span><span class="info-val" style="color:green; font-weight:bold;">AKTİF</span></div>
+        </div>
     </div>
 </div>
 
 <script>
-    let rehberData = [];
-    let favoriler = JSON.parse(localStorage.getItem("rehber_favs")) || [];
+    const liste = [
+        { birim: "100.YIL MAHALLESİ HAVUZ", mahalle: "100.YIL", adres: "2162. Sokak No:3", devre: "yuzyilhavuzvdsl", tip: "100/4 Mbps - VDSL", ip: "BEKLENİYOR" },
+        { birim: "KAZIM KARABEKİR BİLGİ EVİ", mahalle: "K.KARABEKİR", adres: "259. Sokak No:2", devre: "kk_bilgievi", tip: "50 Mbps - VDSL", ip: "BEKLENİYOR" },
+        { birim: "GÜNEŞLİ BAĞ KAFE", mahalle: "GÜNEŞLİ", adres: "Fevzi Çakmak No:12", devre: "bagkafe_fiber", tip: "1000 Mbps - FTTX", ip: "BEKLENİYOR" },
+        { birim: "ŞEHİR KÜTÜPHANESİ", mahalle: "SANCAKTEPE", adres: "Şehir Cad. No:5", devre: "kutuphane_metro", tip: "METRO ETH", ip: "BEKLENİYOR" }
+    ];
 
-    // Verileri JSON dosyasından çekiyoruz
-    async function verileriGetir() {
-        try {
-            const response = await fetch('rehber.json');
-            rehberData = await response.json();
-            tabloCiz(rehberData);
-        } catch (error) {
-            console.error("HATA: rehber.json dosyası bulunamadı veya formatı hatalı!");
-        }
+    function draw(data) {
+        document.getElementById('tBody').innerHTML = data.map(i => `
+            <tr onclick="openCard('${i.birim}')">
+                <td><b>${i.birim}</b></td>
+                <td>${i.mahalle}</td>
+                <td>${i.adres}</td>
+                <td><code>${i.devre}</code></td>
+            </tr>
+        `).join('');
     }
 
-    function normalizeText(text) {
-        if (!text) return "";
-        return text.toString().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-            .replace(/İ/g, 'i').replace(/I/g, 'ı').replace(/Ş/g, 's').replace(/Ğ/g, 'g')
-            .replace(/Ü/g, 'u').replace(/Ö/g, 'o').replace(/Ç/g, 'c').toLowerCase().trim();
+    function filter() {
+        const val = document.getElementById('searchBox').value.toLowerCase();
+        const res = liste.filter(i => i.birim.toLowerCase().includes(val) || i.mahalle.toLowerCase().includes(val) || i.devre.toLowerCase().includes(val));
+        draw(res);
     }
 
-    function tabloCiz(liste) {
-        const tbody = document.getElementById("tableBody");
-        let html = "";
-        const sirali = [...liste].sort((a, b) => {
-            const af = favoriler.includes(a.no) ? 1 : 0;
-            const bf = favoriler.includes(b.no) ? 1 : 0;
-            return bf - af; // Sadece favoriler en üste, gerisi JSON'daki sırayla
-        });
-
-        sirali.forEach(k => {
-            const isFav = favoriler.includes(k.no);
-            const isMudur = normalizeText(k.unvan).includes("mudur");
-            html += `
-                <tr class="${isFav ? 'is-favorite' : ''} ${isMudur ? 'mudur-satir' : ''}">
-                    <td style="text-align:center;"><span class="star ${isFav ? 'active' : ''}" onclick="favToggle('${k.no}')">${isFav ? '★' : '☆'}</span></td>
-                    <td class="dahili-no">${k.no}</td>
-                    <td style="font-weight: 500;">${k.ad}</td>
-                    <td>${k.birim}</td>
-                    <td>${k.unvan}</td>
-                </tr>`;
-        });
-        tbody.innerHTML = html;
-        document.getElementById("totalCount").innerText = sirali.length;
+    function openCard(name) {
+        const i = liste.find(x => x.birim === name);
+        document.getElementById('m-birim').innerText = i.birim;
+        document.getElementById('m-mahalle').innerText = i.mahalle;
+        document.getElementById('m-adres').innerText = i.adres;
+        document.getElementById('m-devre').innerText = i.devre;
+        document.getElementById('m-ip').innerText = i.ip;
+        document.getElementById('m-tip').innerText = i.tip;
+        document.getElementById('myModal').style.display = "block";
     }
 
-    function favToggle(no) {
-        favoriler = favoriler.includes(no) ? favoriler.filter(n => n !== no) : [...favoriler, no];
-        localStorage.setItem("rehber_favs", JSON.stringify(favoriler));
-        filtrele();
-    }
-
-    function filtrele() {
-        const word = normalizeText(document.getElementById("searchInput").value);
-        const sonuc = rehberData.filter(i => 
-            normalizeText(i.ad).includes(word) || normalizeText(i.birim).includes(word) || 
-            normalizeText(i.unvan).includes(word) || i.no.toString().includes(word)
-        );
-        tabloCiz(sonuc);
-    }
-
-    document.getElementById("searchInput").addEventListener("input", filtrele);
-    verileriGetir(); // Sayfa açılınca JSON'ı yükle
+    function closeModal() { document.getElementById('myModal').style.display = "none"; }
+    window.onclick = (e) => { if(e.target == document.getElementById('myModal')) closeModal(); }
+    window.onload = () => draw(liste);
 </script>
+
 </body>
 </html>
